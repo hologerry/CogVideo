@@ -8,9 +8,6 @@
 
 CogVLM2-Video 是一个多功能的视频理解模型，具备基于时间戳的问题回答能力。用户可以输入诸如 `请详细描述这个视频` 的提示语给模型，以获得详细的视频Caption：
 
-
-<div align="center">
-    <a href="https://cogvlm2-video.github.io/"><img width="600px" height="auto" src="./assests/cogvlm2-video-example.png"></a>
-</div>
+![CogVLM2-Video](./assests/cogvlm2-video-example.png)
 
 用户可以使用提供的[代码](https://github.com/THUDM/CogVLM2/tree/main/video_demo)加载模型或配置 RESTful API 来生成视频Caption。

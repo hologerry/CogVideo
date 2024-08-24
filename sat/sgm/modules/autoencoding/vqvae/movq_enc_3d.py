@@ -1,12 +1,13 @@
 # pytorch_diffusion + derived encoder decoder
 import math
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 from beartype import beartype
-from beartype.typing import Union, Tuple, Optional, List
+from beartype.typing import List, Optional, Tuple, Union
 from einops import rearrange
 
 

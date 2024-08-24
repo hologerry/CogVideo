@@ -4,6 +4,7 @@ from collections import namedtuple
 
 import torch
 import torch.nn as nn
+
 from torchvision import models
 
 from ..util import get_ckpt_path
@@ -57,7 +58,7 @@ class LPIPS(nn.Module):
 
 class ScalingLayer(nn.Module):
     def __init__(self):
-        super(ScalingLayer, self).__init__()
+        super().__init__()
         self.register_buffer("shift", torch.Tensor([-0.030, -0.088, -0.188])[None, :, None, None])
         self.register_buffer("scale", torch.Tensor([0.458, 0.448, 0.450])[None, :, None, None])
 
@@ -69,7 +70,7 @@ class NetLinLayer(nn.Module):
     """A single linear layer which does a 1x1 conv"""
 
     def __init__(self, chn_in, chn_out=1, use_dropout=False):
-        super(NetLinLayer, self).__init__()
+        super().__init__()
         layers = (
             [
                 nn.Dropout(),
@@ -85,7 +86,7 @@ class NetLinLayer(nn.Module):
 
 class vgg16(torch.nn.Module):
     def __init__(self, requires_grad=False, pretrained=True):
-        super(vgg16, self).__init__()
+        super().__init__()
         vgg_pretrained_features = models.vgg16(pretrained=pretrained).features
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()

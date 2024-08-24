@@ -1,15 +1,19 @@
 import functools
 import importlib
 import os
+
 from functools import partial
 from inspect import isfunction
+from math import sqrt
 
 import fsspec
 import numpy as np
 import torch
+import torch.distributed
+
 from PIL import Image, ImageDraw, ImageFont
 from safetensors.torch import load_file as load_safetensors
-import torch.distributed
+
 
 _CONTEXT_PARALLEL_GROUP = None
 _CONTEXT_PARALLEL_SIZE = None
@@ -357,9 +361,6 @@ def get_nested_attribute(obj, attribute_path, depth=None, return_key=False):
             current_attribute = getattr(current_attribute, attribute)
 
     return (current_attribute, current_key) if return_key else current_attribute
-
-
-from math import sqrt
 
 
 class SeededNoise:

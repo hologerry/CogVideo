@@ -10,19 +10,24 @@ Run the script:
 
 """
 
-import gc
 import argparse
+import gc
 import tempfile
-from typing import Union, List
 
-import PIL
+from typing import List, Union
+
 import imageio
 import numpy as np
+import PIL
 import torch
-from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler
+
+from diffusers import CogVideoXDDIMScheduler, CogVideoXPipeline
+
 
 def export_to_video_imageio(
-        video_frames: Union[List[np.ndarray], List[PIL.Image.Image]], output_video_path: str = None, fps: int = 8
+    video_frames: Union[List[np.ndarray], List[PIL.Image.Image]],
+    output_video_path: str = None,
+    fps: int = 8,
 ) -> str:
     """
     Export the video frames to a video file using imageio lib to Avoid "green screen" issue (for example CogVideoX)
@@ -38,13 +43,13 @@ def export_to_video_imageio(
 
 
 def generate_video(
-        prompt: str,
-        model_path: str,
-        output_path: str = "./output.mp4",
-        num_inference_steps: int = 50,
-        guidance_scale: float = 6.0,
-        num_videos_per_prompt: int = 1,
-        dtype: torch.dtype = torch.float16,
+    prompt: str,
+    model_path: str,
+    output_path: str = "./output.mp4",
+    num_inference_steps: int = 50,
+    guidance_scale: float = 6.0,
+    num_videos_per_prompt: int = 1,
+    dtype: torch.dtype = torch.float16,
 ):
     """
     Generates a video based on the given prompt and saves it to the specified path.
@@ -90,7 +95,7 @@ def generate_video(
         prompt=prompt,
         num_videos_per_prompt=num_videos_per_prompt,  # Number of videos to generate per prompt
         num_inference_steps=num_inference_steps,  # Number of inference steps
-        num_frames=48, # Number of frames to generate，changed to 49 for diffusers version `0.31.0` and after.
+        num_frames=48,  # Number of frames to generate，changed to 49 for diffusers version `0.31.0` and after.
         guidance_scale=guidance_scale,  # Guidance scale for classifier-free guidance
         generator=torch.Generator().manual_seed(42),  # Set the seed for reproducibility
     ).frames[0]

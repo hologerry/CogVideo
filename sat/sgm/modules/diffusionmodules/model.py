@@ -1,12 +1,15 @@
 # pytorch_diffusion + derived encoder decoder
 import math
+
 from typing import Any, Callable, Optional
 
 import numpy as np
 import torch
 import torch.nn as nn
+
 from einops import rearrange
 from packaging import version
+
 
 try:
     import xformers

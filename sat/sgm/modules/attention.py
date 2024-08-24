@@ -1,12 +1,15 @@
 import math
+
 from inspect import isfunction
 from typing import Any, Optional
 
 import torch
 import torch.nn.functional as F
+
 from einops import rearrange, repeat
 from packaging import version
 from torch import nn
+
 
 if version.parse(torch.__version__) >= version.parse("2.0.0"):
     SDP_IS_AVAILABLE = True

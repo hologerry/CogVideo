@@ -1,19 +1,21 @@
+import math
+import random
+
 from typing import List, Optional, Union
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from omegaconf import ListConfig
-import math
-
-from ...modules.diffusionmodules.sampling import VideoDDIMSampler, VPSDEDPMPP2MSampler
-from ...util import append_dims, instantiate_from_config
-from ...modules.autoencoding.lpips.loss.lpips import LPIPS
 
 # import rearrange
 from einops import rearrange
-import random
+from omegaconf import ListConfig
+
 from sat import mpu
+
+from ...modules.autoencoding.lpips.loss.lpips import LPIPS
+from ...modules.diffusionmodules.sampling import VideoDDIMSampler, VPSDEDPMPP2MSampler
+from ...util import append_dims, instantiate_from_config
 
 
 class StandardDiffusionLoss(nn.Module):

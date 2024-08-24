@@ -14,7 +14,7 @@
 📚 Check here to view <a href="https://arxiv.org/abs/2408.06072" target="_blank">Paper</a>
 </p>
 <p align="center">
-    👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a> 
+    👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a>
 </p>
 <p align="center">
 📍 Visit <a href="https://chatglm.cn/video?fr=osm_cogvideox">清影</a> and <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">API Platform</a> to experience larger-scale commercial video generation models.
@@ -50,19 +50,24 @@
 
 Jump to a specific section:
 
-- [Quick Start](#Quick-Start)
+- [CogVideo \&\& CogVideoX](#cogvideo--cogvideox)
+  - [Update and News](#update-and-news)
+  - [Table of Contents](#table-of-contents)
+  - [Quick Start](#quick-start)
+    - [Prompt Optimization](#prompt-optimization)
     - [SAT](#sat)
-    - [Diffusers](#Diffusers)
-- [CogVideoX-2B Video Works](#cogvideox-2b-gallery)
-- [Introduction to the CogVideoX Model](#Model-Introduction)
-- [Full Project Structure](#project-structure)
+    - [Diffusers](#diffusers)
+  - [CogVideoX-2B Gallery](#cogvideox-2b-gallery)
+  - [Model Introduction](#model-introduction)
+  - [Friendly Links](#friendly-links)
+  - [Project Structure](#project-structure)
     - [Inference](#inference)
-    - [SAT](#sat)
+    - [sat](#sat-1)
     - [Tools](#tools)
-- [Introduction to CogVideo(ICLR'23) Model](#cogvideoiclr23)
-- [Citations](#Citation)
-- [Open Source Project Plan](#Open-Source-Project-Plan)
-- [Model License](#Model-License)
+  - [CogVideo(ICLR'23)](#cogvideoiclr23)
+  - [Citation](#citation)
+  - [Open Source Project Plan](#open-source-project-plan)
+  - [Model License](#model-license)
 
 ## Quick Start
 
@@ -123,17 +128,17 @@ to [清影](https://chatglm.cn/video?fr=osm_cogvideox).
 The table below shows the list of video generation models we currently provide,
 along with related basic information:
 
-| Model Name                                | CogVideoX-2B                                                                                                                                                                                        | 
+| Model Name                                | CogVideoX-2B                                                                                                                                                                                        |
 |-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Prompt Language                           | English                                                                                                                                                                                             | 
-| Single GPU  Inference (FP16)              | 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer)   <br>  23.9GB using diffusers                                                                                                      | 
+| Prompt Language                           | English                                                                                                                                                                                             |
+| Single GPU  Inference (FP16)              | 18GB using [SAT](https://github.com/THUDM/SwissArmyTransformer)   <br>  23.9GB using diffusers                                                                                                      |
 | Multi GPUs Inference (FP16)               | 20GB minimum per GPU using diffusers                                                                                                                                                                |
 | GPU Memory Required for Fine-tuning(bs=1) | 40GB                                                                                                                                                                                                |
 | Prompt Max  Length                        | 226 Tokens                                                                                                                                                                                          |
-| Video Length                              | 6 seconds                                                                                                                                                                                           | 
-| Frames Per Second                         | 8 frames                                                                                                                                                                                            | 
+| Video Length                              | 6 seconds                                                                                                                                                                                           |
+| Frames Per Second                         | 8 frames                                                                                                                                                                                            |
 | Resolution                                | 720 * 480                                                                                                                                                                                           |
-| Quantized Inference                       | Not Supported                                                                                                                                                                                       |          
+| Quantized Inference                       | Not Supported                                                                                                                                                                                       |
 | Download Link (HF diffusers Model)        | 🤗 [Huggingface](https://huggingface.co/THUDM/CogVideoX-2B)   [🤖 ModelScope](https://modelscope.cn/models/ZhipuAI/CogVideoX-2b)   [💫 WiseModel](https://wisemodel.cn/models/ZhipuAI/CogVideoX-2b) |
 | Download Link (SAT Model)                 | [SAT](./sat/README.md)                                                                                                                                                                              |
 
@@ -142,7 +147,7 @@ along with related basic information:
 We highly welcome contributions from the community and actively contribute to the open-source community. The following
 works have already been adapted for CogVideoX, and we invite everyone to use them:
 
-+ [Xorbits Inference](https://github.com/xorbitsai/inference): A powerful and comprehensive distributed inference
+- [Xorbits Inference](https://github.com/xorbitsai/inference): A powerful and comprehensive distributed inference
   framework, allowing you to easily deploy your own models or the latest cutting-edge open-source models with just one
   click.
 
@@ -153,15 +158,15 @@ of the **CogVideoX** open-source model.
 
 ### Inference
 
-+ [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the
+- [diffusers_demo](inference/cli_demo.py): A more detailed explanation of the inference code, mentioning the
   significance of common parameters.
-+ [diffusers_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of
+- [diffusers_vae_demo](inference/cli_vae_demo.py): Executing the VAE inference code alone currently requires 71GB of
   memory, but it will be optimized in the future.
-+ [convert_demo](inference/convert_demo.py): How to convert user input into a format suitable for CogVideoX. Because
+- [convert_demo](inference/convert_demo.py): How to convert user input into a format suitable for CogVideoX. Because
   CogVideoX is trained on long caption, we need to convert the input text to be consistent with the training
   distribution using a LLM. By default, the script uses GLM4, but it can also be replaced with any other LLM such as
   GPT, Gemini, etc.
-+ [gradio_web_demo](inference/gradio_web_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B
+- [gradio_web_demo](inference/gradio_web_demo.py): A simple gradio web UI demonstrating how to use the CogVideoX-2B
   model to generate videos. Same as Our Huggingface Space, you can use this script to launch a web demo.
 
 ```shell
@@ -177,7 +182,7 @@ PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
 </div>
 
-+ [streamlit_web_demo](inference/streamlit_web_demo.py): A simple streamlit web application demonstrating how to use the
+- [streamlit_web_demo](inference/streamlit_web_demo.py): A simple streamlit web application demonstrating how to use the
   CogVideoX-2B model
   to generate videos.
 
@@ -187,7 +192,7 @@ PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
 
 ### sat
 
-+ [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to
+- [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to
   improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking
   and development.
 
@@ -195,8 +200,8 @@ PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
 
 This folder contains some tools for model conversion / caption generation, etc.
 
-+ [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights.
-+ [caption_demo](tools/caption): Caption tool, a model that understands videos and outputs them in text.
+- [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights.
+- [caption_demo](tools/caption): Caption tool, a model that understands videos and outputs them in text.
 
 ## CogVideo(ICLR'23)
 
@@ -213,7 +218,6 @@ A 4-second clip of 32 frames is shown below.
 <div align="center">
   <video src="https://github.com/user-attachments/assets/2fa19651-e925-4a2a-b8d6-b3f216d490ba" width="80%" controls autoplay></video>
 </div>
-
 
 The demo for CogVideo is at [https://models.aminer.cn/cogvideo](https://models.aminer.cn/cogvideo/), where you can get
 hands-on practice on text-to-video generation. *The original input is in Chinese.*
@@ -240,14 +244,14 @@ hands-on practice on text-to-video generation. *The original input is in Chinese
 ## Open Source Project Plan
 
 - [x] Open source CogVideoX model
-    - [x] Open source 3D Causal VAE used in CogVideoX.
-    - [x] CogVideoX model inference example (CLI / Web Demo)
-    - [x] CogVideoX online experience demo (Huggingface Space)
-    - [x] CogVideoX open source model API interface example (Huggingface)
-    - [x] CogVideoX model fine-tuning example (SAT)
-    - [ ] CogVideoX model fine-tuning example (Huggingface / SAT)
-    - [ ] Open source CogVideoX-Pro (adapted for CogVideoX-2B suite)
-    - [x] Release CogVideoX technical report
+  - [x] Open source 3D Causal VAE used in CogVideoX.
+  - [x] CogVideoX model inference example (CLI / Web Demo)
+  - [x] CogVideoX online experience demo (Huggingface Space)
+  - [x] CogVideoX open source model API interface example (Huggingface)
+  - [x] CogVideoX model fine-tuning example (SAT)
+  - [ ] CogVideoX model fine-tuning example (Huggingface / SAT)
+  - [ ] Open source CogVideoX-Pro (adapted for CogVideoX-2B suite)
+  - [x] Release CogVideoX technical report
 
 We welcome your contributions. You can click [here](resources/contribute.md) for more information.
 

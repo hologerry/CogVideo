@@ -1,23 +1,31 @@
 import io
-import os
-import sys
-from functools import partial
 import math
-import torchvision.transforms as TT
-from sgm.webds import MetaDistributedWebDataset
+import os
 import random
+import sys
+import threading
+
 from fractions import Fraction
-from typing import Union, Optional, Dict, Any, Tuple
-from torchvision.io.video import av
+from functools import partial
+from typing import Any, Dict, Optional, Tuple, Union
+
+import decord
 import numpy as np
 import torch
-from torchvision.io import _video_opt
-from torchvision.io.video import _check_av_available, _read_from_stream, _align_audio_frames
-from torchvision.transforms.functional import center_crop, resize
-from torchvision.transforms import InterpolationMode
-import decord
+import torchvision.transforms as TT
+
 from decord import VideoReader
+from sgm.webds import MetaDistributedWebDataset
 from torch.utils.data import Dataset
+from torchvision.io import _video_opt
+from torchvision.io.video import (
+    _align_audio_frames,
+    _check_av_available,
+    _read_from_stream,
+    av,
+)
+from torchvision.transforms import InterpolationMode
+from torchvision.transforms.functional import center_crop, resize
 
 
 def read_video(
@@ -190,9 +198,6 @@ def load_video(
     return pad_last_frame(tensor_frms, num_frames)
 
 
-import threading
-
-
 def load_video_with_timeout(*args, **kwargs):
     video_container = {}
 
@@ -359,7 +364,7 @@ class SFTDataset(Dataset):
         """
         skip_frms_num: ignore the first and the last xx frames, avoiding transitions.
         """
-        super(SFTDataset, self).__init__()
+        super().__init__()
 
         self.videos_list = []
         self.captions_list = []

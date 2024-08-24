@@ -1,8 +1,9 @@
 import torch
+
+from einops import rearrange
 from scipy import integrate
 
 from ...util import append_dims
-from einops import rearrange
 
 
 class NoDynamicThresholding:

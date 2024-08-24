@@ -5,6 +5,7 @@ Partially ported from https://github.com/crowsonkb/k-diffusion/blob/master/k_dif
 from typing import Dict, Union
 
 import torch
+
 from omegaconf import ListConfig, OmegaConf
 from tqdm import tqdm
 
@@ -15,10 +16,9 @@ from ...modules.diffusionmodules.sampling_utils import (
     to_neg_log_sigma,
     to_sigma,
 )
-from ...util import append_dims, default, instantiate_from_config
-from ...util import SeededNoise
-
+from ...util import SeededNoise, append_dims, default, instantiate_from_config
 from .guiders import DynamicCFG
+
 
 DEFAULT_GUIDER = {"target": "sgm.modules.diffusionmodules.guiders.IdentityGuider"}
 

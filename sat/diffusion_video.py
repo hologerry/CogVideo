@@ -1,14 +1,12 @@
+import gc
 import math
-from contextlib import contextmanager
-from typing import Any, Dict, List, Tuple, Union, Optional
-from omegaconf import ListConfig, OmegaConf
-from copy import deepcopy
+
+from typing import Any, Dict, List, Tuple, Union
+
+import torch
 import torch.nn.functional as F
 
-from sat.helpers import print_rank0
-import torch
-from torch import nn
-
+from omegaconf import ListConfig
 from sgm.modules import UNCONDITIONAL_CONFIG
 from sgm.modules.autoencoding.temporal_ae import VideoDecoder
 from sgm.modules.diffusionmodules.wrappers import OPENAIUNETWRAPPER
@@ -19,9 +17,10 @@ from sgm.util import (
     instantiate_from_config,
     log_txt_as_img,
 )
-import gc
+from torch import nn
+
 from sat import mpu
-import random
+from sat.helpers import print_rank0
 
 
 class SATVideoDiffusionEngine(nn.Module):

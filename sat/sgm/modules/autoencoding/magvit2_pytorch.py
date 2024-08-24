@@ -1,40 +1,34 @@
 import copy
+import pickle
+
+from collections import namedtuple
+from functools import partial, wraps
+from math import ceil, log2, sqrt
 from pathlib import Path
-from math import log2, ceil, sqrt
-from functools import wraps, partial
 
 import torch
 import torch.nn.functional as F
-from torch.cuda.amp import autocast
-from torch import nn, einsum, Tensor
-from torch.nn import Module, ModuleList
-from torch.autograd import grad as torch_grad
-
 import torchvision
-from torchvision.models import VGG16_Weights
 
-from collections import namedtuple
+from beartype import beartype
+from beartype.typing import List, Optional, Tuple, Union
+from einops import pack, rearrange, reduce, repeat, unpack
+from einops.layers.torch import Rearrange
+from gateloop_transformer import SimpleGateLoopLayer
+from kornia.filters import filter3d
+from magvit2_pytorch.attend import Attend
+from magvit2_pytorch.version import __version__
+from taylor_series_linear_attention import TaylorSeriesLinearAttn
+from torch import Tensor, einsum, nn
+from torch.autograd import grad as torch_grad
+from torch.cuda.amp import autocast
+from torch.nn import Module, ModuleList
+from torchvision.models import VGG16_Weights
 
 # from vector_quantize_pytorch import LFQ, FSQ
 from .regularizers.finite_scalar_quantization import FSQ
 from .regularizers.lookup_free_quantization import LFQ
 
-from einops import rearrange, repeat, reduce, pack, unpack
-from einops.layers.torch import Rearrange
-
-from beartype import beartype
-from beartype.typing import Union, Tuple, Optional, List
-
-from magvit2_pytorch.attend import Attend
-from magvit2_pytorch.version import __version__
-
-from gateloop_transformer import SimpleGateLoopLayer
-
-from taylor_series_linear_attention import TaylorSeriesLinearAttn
-
-from kornia.filters import filter3d
-
-import pickle
 
 # helper
 
@@ -1248,8 +1242,8 @@ class VideoTokenizer(Module):
             )
 
         else:
-            assert (
-                not exists(codebook_size) and exists(fsq_levels)
+            assert not exists(codebook_size) and exists(
+                fsq_levels
             ), "if use_fsq is set to True, `fsq_levels` must be set (and not `codebook_size`). the effective codebook size is the cumulative product of all the FSQ levels"
 
             self.quantizers = FSQ(fsq_levels, dim=dim, num_codebooks=num_codebooks)

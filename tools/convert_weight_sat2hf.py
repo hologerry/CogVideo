@@ -22,10 +22,17 @@ Functions:
 """
 
 import argparse
+
 from typing import Any, Dict
 
 import torch
-from diffusers import AutoencoderKLCogVideoX, CogVideoXDDIMScheduler, CogVideoXPipeline, CogVideoXTransformer3DModel
+
+from diffusers import (
+    AutoencoderKLCogVideoX,
+    CogVideoXDDIMScheduler,
+    CogVideoXPipeline,
+    CogVideoXTransformer3DModel,
+)
 from transformers import T5EncoderModel, T5Tokenizer
 
 

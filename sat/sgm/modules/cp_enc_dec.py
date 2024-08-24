@@ -1,13 +1,15 @@
 import math
+
 import torch
 import torch.distributed
 import torch.nn as nn
+
 from ..util import (
     get_context_parallel_group,
     get_context_parallel_rank,
     get_context_parallel_world_size,
-
 )
+
 
 _USE_CP = True
 

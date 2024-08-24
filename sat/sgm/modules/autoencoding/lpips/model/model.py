@@ -30,7 +30,7 @@ class NLayerDiscriminator(nn.Module):
             n_layers (int)  -- the number of conv layers in the discriminator
             norm_layer      -- normalization layer
         """
-        super(NLayerDiscriminator, self).__init__()
+        super().__init__()
         if not use_actnorm:
             norm_layer = nn.BatchNorm2d
         else:

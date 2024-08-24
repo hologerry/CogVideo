@@ -1,12 +1,17 @@
 import math
+
 from inspect import isfunction
 from typing import Any, Optional
 
 import torch
 import torch.nn.functional as F
+
 from einops import rearrange, repeat
 from packaging import version
 from torch import nn
+
+from .utils import checkpoint
+
 
 if version.parse(torch.__version__) >= version.parse("2.0.0"):
     SDP_IS_AVAILABLE = True
@@ -49,8 +54,6 @@ try:
 except:
     XFORMERS_IS_AVAILABLE = False
     print("no module 'xformers'. Processing without...")
-
-from modules.utils import checkpoint
 
 
 def exists(val):

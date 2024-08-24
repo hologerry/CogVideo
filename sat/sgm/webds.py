@@ -57,7 +57,7 @@ class ConfiguredResampledShards(ResampledShards):
         from sat.helpers import print_rank0
 
         try:
-            from megatron.core.parallel_state import get_data_parallel_group
+            from megatron.core.parallel_state import get_data_parallel_group  # type: ignore
 
             group = get_data_parallel_group()
             print_rank0("Using megatron data parallel group.")

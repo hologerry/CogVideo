@@ -1,10 +1,12 @@
 import logging
-from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple, Union
-from functools import partial
 import math
 
+from abc import ABC, abstractmethod
+from functools import partial
+from typing import Dict, List, Optional, Tuple, Union
+
 import torch
+
 from einops import rearrange, repeat
 
 from ...util import append_dims, default, instantiate_from_config

@@ -1,7 +1,8 @@
 import logging
 import math
-import re
 import random
+import re
+
 from abc import abstractmethod
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -11,20 +12,21 @@ import pytorch_lightning as pl
 import torch
 import torch.distributed
 import torch.nn as nn
+
 from einops import rearrange
 from packaging import version
-
-from vae_modules.ema import LitEma
 from sgm.util import (
-    instantiate_from_config,
-    get_obj_from_str,
     default,
-    is_context_parallel_initialized,
-    initialize_context_parallel,
     get_context_parallel_group,
     get_context_parallel_group_rank,
+    get_obj_from_str,
+    initialize_context_parallel,
+    instantiate_from_config,
+    is_context_parallel_initialized,
 )
-from vae_modules.cp_enc_dec import _conv_split, _conv_gather
+from vae_modules.cp_enc_dec import _conv_gather, _conv_split
+from vae_modules.ema import LitEma
+
 
 logpy = logging.getLogger(__name__)
 

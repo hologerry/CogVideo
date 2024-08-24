@@ -6,16 +6,17 @@ In the simplest setup, each dimension is quantized into {-1, 1}.
 An entropy penalty is used to encourage utilization.
 """
 
-from math import log2, ceil
 from collections import namedtuple
+from math import ceil, log2
 
 import torch
-from torch import nn, einsum
 import torch.nn.functional as F
-from torch.nn import Module
-from torch.cuda.amp import autocast
 
-from einops import rearrange, reduce, pack, unpack
+from einops import pack, rearrange, reduce, unpack
+from torch import einsum, nn
+from torch.cuda.amp import autocast
+from torch.nn import Module
+
 
 # constants
 

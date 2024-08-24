@@ -10,6 +10,6 @@ args:
   sampling_num_frames: 13  # Must be 13, 11 or 9
   sampling_fps: 8
   fp16: True # For CogVideoX-2B
-#  bf16: True # For CogVideoX-5B
+  # bf16: True # For CogVideoX-5B
   output_dir: outputs/
   force_inference: True

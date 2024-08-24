@@ -1,4 +1,5 @@
 import math
+
 from contextlib import nullcontext
 from functools import partial
 from typing import Dict, List, Optional, Tuple, Union
@@ -7,13 +8,11 @@ import kornia
 import numpy as np
 import torch
 import torch.nn as nn
+
 from einops import rearrange, repeat
 from omegaconf import ListConfig
 from torch.utils.checkpoint import checkpoint
-from transformers import (
-    T5EncoderModel,
-    T5Tokenizer,
-)
+from transformers import T5EncoderModel, T5Tokenizer
 
 from ...util import (
     append_dims,

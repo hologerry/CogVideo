@@ -1,15 +1,22 @@
 import argparse
-import os
-import torch
 import json
+import os
 import warnings
+
 import omegaconf
-from omegaconf import OmegaConf
-from sat.helpers import print_rank0
-from sat import mpu
-from sat.arguments import set_random_seed
-from sat.arguments import add_training_args, add_evaluation_args, add_data_args
+import torch
 import torch.distributed
+
+from omegaconf import OmegaConf
+
+from sat import mpu
+from sat.arguments import (
+    add_data_args,
+    add_evaluation_args,
+    add_training_args,
+    set_random_seed,
+)
+from sat.helpers import print_rank0
 
 
 def add_model_config_args(parser):
@@ -219,7 +226,7 @@ def initialize_distributed(args):
     mpu.initialize_model_parallel(args.model_parallel_size)
 
     # Set vae context parallel group equal to model parallel group
-    from sgm.util import set_context_parallel_group, initialize_context_parallel
+    from sgm.util import initialize_context_parallel, set_context_parallel_group
 
     if args.model_parallel_size <= 2:
         set_context_parallel_group(args.model_parallel_size, mpu.get_model_parallel_group())
@@ -239,6 +246,7 @@ def initialize_distributed(args):
         # in model-only mode, we don't want to init deepspeed, but we still need to init the rng tracker for model_parallel, just because we save the seed by default when dropout.
         try:
             import deepspeed
+
             from deepspeed.runtime.activation_checkpointing.checkpointing import (
                 _CUDA_RNG_STATE_TRACKER,
                 _MODEL_PARALLEL_RNG_TRACKER_NAME,

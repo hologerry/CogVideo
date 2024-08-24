@@ -1,25 +1,24 @@
-from typing import Any, Union
 from math import log2
-from beartype import beartype
+from typing import Any, Union
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision
+
+from beartype import beartype
+from einops import einsum, rearrange, repeat
+from einops.layers.torch import Rearrange
+from kornia.filters import filter3d
+from sgm.modules.autoencoding.vqvae.movq_enc_3d import CausalConv3d, DownSample3D
+from sgm.util import instantiate_from_config
 from torch import Tensor
 from torch.autograd import grad as torch_grad
 from torch.cuda.amp import autocast
-
-import torchvision
 from torchvision.models import VGG16_Weights
-from einops import rearrange, einsum, repeat
-from einops.layers.torch import Rearrange
-from kornia.filters import filter3d
 
-from ..magvit2_pytorch import Residual, FeedForward, LinearSpaceAttention
+from ..magvit2_pytorch import FeedForward, LinearSpaceAttention, Residual
 from .lpips import LPIPS
-
-from sgm.modules.autoencoding.vqvae.movq_enc_3d import CausalConv3d, DownSample3D
-from sgm.util import instantiate_from_config
 
 
 def exists(v):

@@ -1,23 +1,25 @@
 import math
+
+import numpy as np
 import torch
 import torch.distributed
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 from beartype import beartype
-from beartype.typing import Union, Tuple, Optional, List
+from beartype.typing import List, Optional, Tuple, Union
 from einops import rearrange
-
 from sgm.util import (
     get_context_parallel_group,
+    get_context_parallel_group_rank,
     get_context_parallel_rank,
     get_context_parallel_world_size,
-    get_context_parallel_group_rank,
 )
 
 # try:
 from vae_modules.utils import SafeConv3d as Conv3d
+
+
 # except:
 #     # Degrade to normal Conv3d if SafeConv3d is not available
 #     from torch.nn import Conv3d

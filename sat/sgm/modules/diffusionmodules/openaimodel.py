@@ -92,7 +92,7 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
         time_context: Optional[int] = None,
         num_video_frames: Optional[int] = None,
     ):
-        from ...modules.diffusionmodules.video_model import VideoResBlock
+        from ...modules.autoencoding.temporal_ae import VideoResBlock
 
         for layer in self:
             module = layer
@@ -644,11 +644,12 @@ class UNetModel(nn.Module):
         assert use_fairscale_checkpoint != use_checkpoint or not (use_checkpoint or use_fairscale_checkpoint)
 
         self.use_fairscale_checkpoint = False
-        checkpoint_wrapper_fn = (
-            partial(checkpoint_wrapper, offload_to_cpu=offload_to_cpu)
-            if self.use_fairscale_checkpoint
-            else lambda x: x
-        )
+        checkpoint_wrapper_fn = lambda x: x
+        # (
+        #     partial(checkpoint_wrapper, offload_to_cpu=offload_to_cpu)
+        #     if self.use_fairscale_checkpoint
+        #     else lambda x: x
+        # )
 
         time_embed_dim = model_channels * 4
         self.time_embed = checkpoint_wrapper_fn(
