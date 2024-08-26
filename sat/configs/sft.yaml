@@ -1,19 +1,20 @@
 args:
   checkpoint_activations: True ## using gradient checkpointing
   model_parallel_size: 1
-  experiment_name: lora-disney
+  experiment_name: lora_cogvidx2b_scalarflow
   mode: finetune
-  load: "cogvideox-2b-sat/transformer"
+  load: "/data/Dynamics/CogVideoX-2b-sat/transformer"
   no_load_rng: True
-  train_iters: 1000 # Suggest more than 1000 For Lora and SFT For 500 is enough
+  train_iters: 5000 # Suggest more than 1000 For Lora and SFT For 500 is enough
   eval_iters: 1
   eval_interval: 100
   eval_batch_size: 1
-  save: ckpts_2b_lora
+  save: /data/Dynamics/CogVideoX_ckpts_2b_lora
+  summary_dir: /data/Dynamics/CogVideoX_runs_2b_lora
   save_interval: 500
   log_interval: 20
-  train_data: [ "disney" ] # Train data path
-  valid_data: [ "disney" ] # Validation data path, can be the same as train_data(not recommended)
+  train_data: [ "/dev/shm/ScalarFlow_cogvideo_dataset_sub_7090110" ] # Train data path
+  valid_data: [ "/dev/shm/ScalarFlow_cogvideo_dataset_sub_110" ] # Validation data path, can be the same as train_data(not recommended)
   split: 1,0,0
   num_workers: 8
   force_train: True
@@ -25,7 +26,7 @@ data:
     video_size: [ 480, 720 ]
     fps: 8
     max_num_frames: 49
-    skip_frms_num: 3.
+    skip_frms_num: 0
 
 deepspeed:
   # Minimun for 16 videos per batch for ALL GPUs, This setting is for 8 x A100 GPUs
