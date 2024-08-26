@@ -9,9 +9,9 @@ args:
   batch_size: 1
   input_type: txt
   input_file: configs/test_smoke.txt
-  sampling_num_frames: 49  # Must be 13, 11 or 9
+  sampling_num_frames: 13  # Must be 13, 11 or 9
   sampling_fps: 8
   fp16: True # For CogVideoX-2B
   # bf16: True # For CogVideoX-5B
-  output_dir: /data/Dynamics/CogVideoX_2b_lora_outputs/
+  output_dir: /data/Dynamics/CogVideoX_2b_lora_outputs/ours_5000/
   force_inference: True
