@@ -55,9 +55,9 @@ model:
             width_interpolation: 1.875
 
         lora_config:
-            target: sat.model.finetune.lora2.LoraMixin
-            params:
-                r: 128
+          target: sat.model.finetune.lora2.LoraMixin
+          params:
+            r: 128
 
         patch_embed_config:
           target: dit_video_concat.ImagePatchEmbeddingMixin

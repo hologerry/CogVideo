@@ -29,13 +29,13 @@ model:
       time_compressed_rate: 4
       latent_width: 90
       latent_height: 60
-      num_layers: 42 # different from cogvideox_2b_infer.yaml
+      num_layers: 42  # different from cogvideox_2b_infer.yaml
       patch_size: 2
       in_channels: 16
       out_channels: 16
-      hidden_size: 3072 # different from cogvideox_2b_infer.yaml
+      hidden_size: 3072  # different from cogvideox_2b_infer.yaml
       adm_in_channels: 256
-      num_attention_heads: 48 # different from cogvideox_2b_infer.yaml
+      num_attention_heads: 48  # different from cogvideox_2b_infer.yaml
 
       transformer_args:
         checkpoint_activations: True
@@ -80,14 +80,14 @@ model:
           ucg_rate: 0.1
           target: sgm.modules.encoders.modules.FrozenT5Embedder
           params:
-            model_dir: "t5-v1_1-xxl"
+            model_dir: "/data/Dynamics/CogVideoX-2b-sat/t5-v1_1-xxl"
             max_length: 226
 
   first_stage_config:
     target: vae_modules.autoencoder.VideoAutoencoderInferenceWrapper
     params:
       cp_size: 1
-      ckpt_path: "cogvideox-5b-sat/vae/3d-vae.pt"
+      ckpt_path: "/data/Dynamics/CogVideoX-5b-sat/vae/3d-vae.pt"
       ignore_keys: [ 'loss' ]
 
       loss_config:
@@ -138,7 +138,7 @@ model:
           discretization_config:
             target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
             params:
-              shift_scale: 1.0 # different from cogvideox_2b_infer.yaml
+              shift_scale: 1.0  # different from cogvideox_2b_infer.yaml
 
   sampler_config:
     target: sgm.modules.diffusionmodules.sampling.VPSDEDPMPP2MSampler
@@ -149,7 +149,7 @@ model:
       discretization_config:
         target: sgm.modules.diffusionmodules.discretizer.ZeroSNRDDPMDiscretization
         params:
-          shift_scale: 1.0
+          shift_scale: 1.0  # different from cogvideox_2b_infer.yaml
 
       guider_config:
         target: sgm.modules.diffusionmodules.guiders.DynamicCFG

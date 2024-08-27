@@ -1,16 +1,16 @@
 args:
   checkpoint_activations: True ## using gradient checkpointing
   model_parallel_size: 1
-  experiment_name: lora_cogvidx2b_scalarflow
+  experiment_name: lora_cogvidx5b_scalarflow
   mode: finetune
-  load: "/data/Dynamics/CogVideoX-2b-sat/transformer"
+  load: "/data/Dynamics/CogVideoX-5b-sat/transformer"
   no_load_rng: True
   train_iters: 5000 # Suggest more than 1000 For Lora and SFT For 500 is enough
   eval_iters: 1
   eval_interval: 100
   eval_batch_size: 1
-  save: /data/Dynamics/CogVideoX_ckpts_2b_lora
-  summary_dir: /data/Dynamics/CogVideoX_runs_2b_lora
+  save: /data/Dynamics/CogVideoX_5b_lora_ckpts
+  summary_dir: /data/Dynamics/CogVideoX_5b_lora_runs
   save_interval: 500
   log_interval: 20
   train_data: [ "/dev/shm/ScalarFlow_cogvideo_dataset_sub_7090110" ] # Train data path
@@ -18,7 +18,7 @@ args:
   split: 1,0,0
   num_workers: 8
   force_train: True
-  only_log_video_latents: True
+  only_log_video_latents: False
 
 data:
   target: data_video.SFTDataset
@@ -45,9 +45,9 @@ deepspeed:
     load_from_fp32_weights: false
   zero_allow_untested_optimizer: true
   bf16:
-      enabled: False  # For CogVideoX-2B Turn to False and For CogVideoX-5B Turn to True
+      enabled: True  # For CogVideoX-2B Turn to False and For CogVideoX-5B Turn to True
   fp16:
-      enabled: True  # For CogVideoX-2B Turn to True and For CogVideoX-5B Turn to False
+      enabled: False  # For CogVideoX-2B Turn to True and For CogVideoX-5B Turn to False
   loss_scale: 0
   loss_scale_window: 400
   hysteresis: 2

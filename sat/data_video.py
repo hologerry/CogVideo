@@ -173,7 +173,7 @@ def load_video(
     num_frames=4,
     wanted_fps=None,
     actual_fps=None,
-    skip_frms_num=0.0,
+    skip_frms_num=0,
     nb_read_frames=None,
 ):
     decord.bridge.set_bridge("torch")
