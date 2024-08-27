@@ -11,15 +11,6 @@ Run the script:
 """
 
 import argparse
-import tempfile
-from typing import Union, List
-
-import PIL
-import imageio
-import numpy as np
-import torch
-
-
 import torch
 from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler, CogVideoXDPMScheduler
 from diffusers.utils import export_to_video
