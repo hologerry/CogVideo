@@ -14,7 +14,7 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 📚 View the <a href="https://arxiv.org/abs/2408.06072" target="_blank">paper</a> and <a href="https://zhipu-ai.feishu.cn/wiki/DHCjw1TrJiTyeukfc9RceoSRnCh" target="_blank">user guide</a>
 </p>
 <p align="center">
-    👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a>
+    👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/B94UfuhN" target="_blank">Discord</a> 
 </p>
 <p align="center">
 📍 Visit <a href="https://chatglm.cn/video?fr=osm_cogvideox">清影</a> and <a href="https://open.bigmodel.cn/?utm_campaign=open&_channel_track_key=OWTVNma9">API Platform</a> to experience larger-scale commercial video generation models.
@@ -257,7 +257,7 @@ CogVideoX is an open-source version of the video generation model originating fr
 We highly welcome contributions from the community and actively contribute to the open-source community. The following
 works have already been adapted for CogVideoX, and we invite everyone to use them:
 
-- [Xorbits Inference](https://github.com/xorbitsai/inference): A powerful and comprehensive distributed inference
++ [Xorbits Inference](https://github.com/xorbitsai/inference): A powerful and comprehensive distributed inference
   framework, allowing you to easily deploy your own models or the latest cutting-edge open-source models with just one
   click.
 + [VideoSys](https://github.com/NUS-HPC-AI-Lab/VideoSys): VideoSys provides a user-friendly, high-performance
@@ -300,7 +300,7 @@ PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
     <img src="resources/gradio_demo.png" style="width: 100%; height: auto;" />
 </div>
 
-- [streamlit_web_demo](inference/streamlit_web_demo.py): A simple streamlit web application demonstrating how to use the
++ [streamlit_web_demo](inference/streamlit_web_demo.py): A simple streamlit web application demonstrating how to use the
   CogVideoX-2B model
   to generate videos.
 
@@ -310,7 +310,7 @@ PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
 
 ### sat
 
-- [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to
++ [sat_demo](sat/README.md): Contains the inference code and fine-tuning code of SAT weights. It is recommended to
   improve based on the CogVideoX model structure. Innovative researchers use this code to better perform rapid stacking
   and development.
 
@@ -318,8 +318,8 @@ PYTORCH_ENABLE_MPS_FALLBACK=1 python gradio_web_demo.py # humans mode
 
 This folder contains some tools for model conversion / caption generation, etc.
 
-- [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights.
-- [caption_demo](tools/caption): Caption tool, a model that understands videos and outputs them in text.
++ [convert_weight_sat2hf](tools/convert_weight_sat2hf.py): Convert SAT model weights to Huggingface model weights.
++ [caption_demo](tools/caption): Caption tool, a model that understands videos and outputs them in text.
 
 ## CogVideo(ICLR'23)
 
@@ -336,6 +336,7 @@ A 4-second clip of 32 frames is shown below.
 <div align="center">
   <video src="https://github.com/user-attachments/assets/2fa19651-e925-4a2a-b8d6-b3f216d490ba" width="80%" controls autoplay></video>
 </div>
+
 
 The demo for CogVideo is at [https://models.aminer.cn/cogvideo](https://models.aminer.cn/cogvideo/), where you can get
 hands-on practice on text-to-video generation. *The original input is in Chinese.*
