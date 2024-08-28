@@ -1,0 +1,26 @@
+args:
+  latent_channels: 16
+  mode: inference
+  # load: "{your CogVideoX SAT folder}/transformer" # This is for Full model without lora adapter
+  # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
+  # load: "/data/Dynamics/CogVideoX-2b-sat/transformer"
+  load: /data/Dynamics/CogVideoX_2b_lora_ckpts/lora_cogvidx2b_scalarflow-08-25-22-26/
+
+  batch_size: 1
+  input_type: txt
+  input_file: configs/test_smoke.txt
+
+  sdedit_strength: 'all'  # 0.0 to 1.0, 1.0 means full sampling
+  sdedit_prompt_idx: 0
+  sdedit_frames_dir: /data/Dynamics/gaussian_fluid_dynamics_log/gaussian_pbd_fluid_scalar_sim_rec_simple/gpf_basic_siminrec_simple_gascsprat_velnn_velgascsprat_l2gascs_lcurdist01_lexyz01_dur90_fut90_sol5_p01d5_emitfirstymoremore_decayp030/training_render_for_generative_cogvideox/
+  sdedit_start_idx: 90
+  sdedit_num_frames: 49
+  sdedit_view_idx: 0
+  sdedit_ignore_input_fps: True
+
+  sampling_num_frames: 13  # Must be 13, 11 or 9
+  sampling_fps: 8
+  fp16: True # For CogVideoX-2B
+  # bf16: True # For CogVideoX-5B
+  output_dir: /data/Dynamics/CogVideoX_lora_outputs/2b_lora_sdedit/
+  force_inference: True

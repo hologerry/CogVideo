@@ -59,17 +59,26 @@ class BaseDiffusionSampler:
         denoised = self.guider(denoised, sigma)
         return denoised
 
-    def get_sigma_gen(self, num_sigmas):
+    def get_sigma_gen(self, num_sigmas, sdedit_strength=None):
         sigma_generator = range(num_sigmas - 1)
+        if sdedit_strength is not None and 0.0 <= sdedit_strength <= 1.0:
+            sigma_values = list(range(num_sigmas - 1))
+            ## int will cause float number error
+            sdedit_index = round((num_sigmas - 1) * (1.0 - sdedit_strength))
+            sigma_generator = sigma_values[sdedit_index:]
+
         if self.verbose:
             print("#" * 30, " Sampling setting ", "#" * 30)
             print(f"Sampler: {self.__class__.__name__}")
             print(f"Discretization: {self.discretization.__class__.__name__}")
             print(f"Guider: {self.guider.__class__.__name__}")
+            desc = f"Sampling with {self.__class__.__name__} for {num_sigmas - 1} steps"
+            if sdedit_strength is not None and 0.0 <= sdedit_strength <= 1.0:
+                desc += f" with SDEdit {sdedit_strength}"
             sigma_generator = tqdm(
                 sigma_generator,
-                total=num_sigmas,
-                desc=f"Sampling with {self.__class__.__name__} for {num_sigmas} steps",
+                total=len(sigma_generator) + 1,  # replace with num_sigmas to cover sdedit
+                desc=desc,
             )
         return sigma_generator
 
@@ -544,7 +553,18 @@ class VideoDDIMSampler(BaseDiffusionSampler):
         x = append_dims(a_t, x.ndim) * x + append_dims(b_t, x.ndim) * denoised
         return x
 
-    def __call__(self, denoiser, x, cond, uc=None, num_steps=None, scale=None, scale_emb=None):
+    def __call__(
+        self,
+        denoiser,
+        x,
+        cond,
+        uc=None,
+        num_steps=None,
+        scale=None,
+        scale_emb=None,
+        *args,
+        **kwargs,
+    ):
         x, s_in, alpha_cumprod_sqrt, num_sigmas, cond, uc, timesteps = self.prepare_sampling_loop(
             x, cond, uc, num_steps
         )
@@ -636,15 +656,41 @@ class VPSDEDPMPP2MSampler(VideoDDIMSampler):
 
         return x, denoised
 
-    def __call__(self, denoiser, x, cond, uc=None, num_steps=None, scale=None, scale_emb=None):
+    def __call__(
+        self,
+        denoiser,
+        x,
+        cond,
+        uc=None,
+        num_steps=None,
+        scale=None,
+        scale_emb=None,
+        frames_z=None,
+        sdedit_strength=None,
+    ):
+        # x is just noise
         x, s_in, alpha_cumprod_sqrt, num_sigmas, cond, uc, timesteps = self.prepare_sampling_loop(
             x, cond, uc, num_steps
         )
+        # print("+" * 30, f"sampling values", "+" * 30)
+        # print("num_sigmas", num_sigmas)
+        # print("self.num_steps", self.num_steps)
+        # print("timesteps", timesteps)
+        # print("s_in", s_in)
+        # print("alpha_cumprod_sqrt", alpha_cumprod_sqrt)
+        # print("-" * 30, f"sampling values", "-" * 30)
+
+        if frames_z is not None and sdedit_strength is not None and 0.0 <= sdedit_strength <= 1.0:
+            sdedit_index = max(round((num_sigmas - 1) * (1.0 - sdedit_strength)), 0)
+            # print(f"SDEditing with frames_z at {sdedit_index} step")
+        else:
+            sdedit_index = 0
 
         if self.fixed_frames > 0:
             prefix_frames = x[:, : self.fixed_frames]
         old_denoised = None
-        for i in self.get_sigma_gen(num_sigmas):
+
+        for i in self.get_sigma_gen(num_sigmas, sdedit_strength):
             if self.fixed_frames > 0:
                 if self.sdedit:
                     rd = torch.randn_like(prefix_frames)
@@ -654,6 +700,31 @@ class VPSDEDPMPP2MSampler(VideoDDIMSampler):
                     x = torch.cat([noised_prefix_frames, x[:, self.fixed_frames :]], dim=1)
                 else:
                     x = torch.cat([prefix_frames, x[:, self.fixed_frames :]], dim=1)
+
+            if sdedit_index > 0:
+                if i < sdedit_index:
+                    # Skip the first steps
+                    # current `get_sigma_gen` will not include the first steps, we directly pruned the indices
+                    continue
+
+                if i == sdedit_index:
+                    rd = torch.randn_like(frames_z)
+                    noised_frames_z = alpha_cumprod_sqrt[i] * frames_z + rd * append_dims(
+                        s_in * (1 - alpha_cumprod_sqrt[i] ** 2) ** 0.5, len(frames_z.shape)
+                    )
+                    x = noised_frames_z
+                    # print("o" * 30)
+                    # print("SDEditing")
+                    # print("SDEDIT i", i)
+                    # print("SDEDIT sdedit_index", sdedit_index)
+                    # print("SDEDIT timesteps[i]", timesteps[i])
+                    # print("SDEDIT alpha_cumprod_sqrt", alpha_cumprod_sqrt)
+                    # print("SDEDIT alpha_cumprod_sqrt[i]", alpha_cumprod_sqrt[i])
+                    # print("SDEDIT (1 - alpha_cumprod_sqrt[i] ** 2) ** 0.5", (1 - alpha_cumprod_sqrt[i] ** 2) ** 0.5)
+                    # print("SDEDIT noised_frames_z", noised_frames_z)
+                    # print("SDEDIT s_in", s_in)
+                    # print("o" * 30)
+
             x, old_denoised = self.sampler_step(
                 old_denoised,
                 None if i == 0 else s_in * alpha_cumprod_sqrt[i - 1],

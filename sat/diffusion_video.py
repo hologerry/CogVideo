@@ -6,9 +6,13 @@ from typing import Any, Dict, List, Tuple, Union
 import torch
 import torch.nn.functional as F
 
+from dit_video_concat import DiffusionTransformer
 from omegaconf import ListConfig
-from sgm.modules import UNCONDITIONAL_CONFIG
+from sgm.modules import UNCONDITIONAL_CONFIG, GeneralConditioner
 from sgm.modules.autoencoding.temporal_ae import VideoDecoder
+from sgm.modules.diffusionmodules.denoiser import DiscreteDenoiser
+from sgm.modules.diffusionmodules.loss import VideoDiffusionLoss
+from sgm.modules.diffusionmodules.sampling import VPSDEDPMPP2MSampler
 from sgm.modules.diffusionmodules.wrappers import OPENAIUNETWRAPPER
 from sgm.util import (
     default,
@@ -18,6 +22,7 @@ from sgm.util import (
     log_txt_as_img,
 )
 from torch import nn
+from vae_modules.autoencoder import VideoAutoencoderInferenceWrapper
 
 from sat import mpu
 from sat.helpers import print_rank0
@@ -71,18 +76,24 @@ class SATVideoDiffusionEngine(nn.Module):
         self.dtype_str = dtype_str
 
         network_config["params"]["dtype"] = dtype_str
-        model = instantiate_from_config(network_config)
+        model: DiffusionTransformer = instantiate_from_config(network_config)
         self.model = get_obj_from_str(default(network_wrapper, OPENAIUNETWRAPPER))(
             model, compile_model=compile_model, dtype=dtype
         )
 
-        self.denoiser = instantiate_from_config(denoiser_config)
-        self.sampler = instantiate_from_config(sampler_config) if sampler_config is not None else None
-        self.conditioner = instantiate_from_config(default(conditioner_config, UNCONDITIONAL_CONFIG))
+        self.denoiser: DiscreteDenoiser = instantiate_from_config(denoiser_config)
+        self.sampler: VPSDEDPMPP2MSampler = (
+            instantiate_from_config(sampler_config) if sampler_config is not None else None
+        )
+        self.conditioner: GeneralConditioner = instantiate_from_config(
+            default(conditioner_config, UNCONDITIONAL_CONFIG)
+        )
 
         self._init_first_stage(first_stage_config)
 
-        self.loss_fn = instantiate_from_config(loss_fn_config) if loss_fn_config is not None else None
+        self.loss_fn: VideoDiffusionLoss = (
+            instantiate_from_config(loss_fn_config) if loss_fn_config is not None else None
+        )
 
         self.latent_input = latent_input
         self.scale_factor = scale_factor
@@ -120,7 +131,7 @@ class SATVideoDiffusionEngine(nn.Module):
         pass
 
     def _init_first_stage(self, config):
-        model = instantiate_from_config(config).eval()
+        model: VideoAutoencoderInferenceWrapper = instantiate_from_config(config).eval()
         model.train = disabled_train
         for param in model.parameters():
             param.requires_grad = False
@@ -164,7 +175,7 @@ class SATVideoDiffusionEngine(nn.Module):
                     kwargs = {"timesteps": len(z[n * n_samples : (n + 1) * n_samples])}
                 else:
                     kwargs = {}
-                use_cp = False
+                # use_cp = False
                 out = self.first_stage_model.decode(z[n * n_samples : (n + 1) * n_samples], **kwargs)
                 all_out.append(out)
         out = torch.cat(all_out, dim=0)
@@ -178,7 +189,7 @@ class SATVideoDiffusionEngine(nn.Module):
             x = x.permute(0, 2, 1, 3, 4).contiguous()
             return x * self.scale_factor  # already encoded
 
-        use_cp = False
+        # use_cp = False
 
         n_samples = default(self.en_and_decode_n_samples_a_time, x.shape[0])
         n_rounds = math.ceil(x.shape[0] / n_samples)
@@ -200,6 +211,8 @@ class SATVideoDiffusionEngine(nn.Module):
         shape: Union[None, Tuple, List] = None,
         prefix=None,
         concat_images=None,
+        frames_z: Union[None, torch.Tensor] = None,
+        sdedit_strength: float = 1.0,
         **kwargs,
     ):
         randn = torch.randn(batch_size, *shape).to(torch.float32).to(self.device)
@@ -223,7 +236,16 @@ class SATVideoDiffusionEngine(nn.Module):
             self.model, input, sigma, c, concat_images=concat_images, **addtional_model_inputs
         )
 
-        samples = self.sampler(denoiser, randn, cond, uc=uc, scale=scale, scale_emb=scale_emb)
+        samples = self.sampler(
+            denoiser,
+            randn,
+            cond,
+            uc=uc,
+            scale=scale,
+            scale_emb=scale_emb,
+            frames_z=frames_z,
+            sdedit_strength=sdedit_strength,
+        )
         samples = samples.to(self.dtype)
         return samples
 

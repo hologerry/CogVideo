@@ -72,7 +72,7 @@ class Model:
         # loss_vgg = self.vgg(merged[2], gt)
         if training:
             self.optimG.zero_grad()
-            loss_G = loss_cons + loss_smooth * 0.1
+            loss_G = loss_cons + loss_smooth * 0.1  # type: ignore
             loss_G.backward()
             self.optimG.step()
         else:
@@ -81,6 +81,6 @@ class Model:
             "mask": mask,
             "flow": flow[2][:, :2],
             "loss_l1": loss_l1,
-            "loss_cons": loss_cons,
+            "loss_cons": loss_cons,  # type: ignore
             "loss_smooth": loss_smooth,
         }

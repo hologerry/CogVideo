@@ -58,6 +58,21 @@ def add_sampling_config_args(parser):
     return parser
 
 
+def add_sdedit_config_args(parser):
+    """SDEdit configurations"""
+
+    group = parser.add_argument_group("sdedit", "SDEdit Configurations")
+    group.add_argument("--sdedit-strength", type=float, default=1.0)
+    group.add_argument("--sdedit-prompt-idx", type=int, default=0)
+    group.add_argument("--sdedit-frames-dir", type=str, default=None)
+    group.add_argument("--sdedit-start-idx", type=int, default=90)
+    group.add_argument("--sdedit-num-frames", type=int, default=49)
+    group.add_argument("--sdedit-view-idx", type=int, default=0)
+    group.add_argument("--sdedit-ignore-input-fps", action="store_true")
+
+    return parser
+
+
 def get_args(args_list=None, parser=None):
     """Parse all the args."""
     if parser is None:
@@ -66,6 +81,7 @@ def get_args(args_list=None, parser=None):
         assert isinstance(parser, argparse.ArgumentParser)
     parser = add_model_config_args(parser)
     parser = add_sampling_config_args(parser)
+    parser = add_sdedit_config_args(parser)
     parser = add_training_args(parser)
     parser = add_evaluation_args(parser)
     parser = add_data_args(parser)

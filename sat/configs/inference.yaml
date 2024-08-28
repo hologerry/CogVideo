@@ -3,8 +3,8 @@ args:
   mode: inference
   # load: "{your CogVideoX SAT folder}/transformer" # This is for Full model without lora adapter
   # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
-  # load: "/data/Dynamics/CogVideoX-2b-sat/transformer"
-  load: /data/Dynamics/CogVideoX_2b_lora_ckpts/lora_cogvidx2b_scalarflow-08-25-22-26/
+  load: "/data/Dynamics/CogVideoX-2b-sat/transformer"
+  # load: /data/Dynamics/CogVideoX_2b_lora_ckpts/lora_cogvidx2b_scalarflow-08-25-22-26/
 
   batch_size: 1
   input_type: txt
@@ -13,5 +13,5 @@ args:
   sampling_fps: 8
   fp16: True # For CogVideoX-2B
   # bf16: True # For CogVideoX-5B
-  output_dir: /data/Dynamics/CogVideoX_2b_lora_outputs/lora_5000/
+  output_dir: /data/Dynamics/CogVideoX_lora_outputs/2b_raw_sample/
   force_inference: True
