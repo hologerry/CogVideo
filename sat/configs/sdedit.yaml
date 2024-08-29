@@ -15,7 +15,7 @@ args:
   sdedit_frames_dir: /data/Dynamics/gaussian_fluid_dynamics_log/gaussian_pbd_fluid_scalar_sim_rec_simple/gpf_basic_siminrec_simple_gascsprat_velnn_velgascsprat_l2gascs_lcurdist01_lexyz01_dur90_fut90_sol5_p01d5_emitfirstymoremore_decayp030/training_render_for_generative_cogvideox/
   sdedit_start_idx: 90
   sdedit_num_frames: 49
-  sdedit_view_idx: 0
+  sdedit_view_idx: 4
   sdedit_ignore_input_fps: True
 
   sampling_num_frames: 13  # Must be 13, 11 or 9

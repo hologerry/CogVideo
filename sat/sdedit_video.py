@@ -220,11 +220,17 @@ def sampling_main(args, model_cls):
 
     out_fps = args.sampling_fps
 
-    frames_tensor = torch.stack(frames_tensor, dim=0).to(torch_dtype)
+    frames_tensor = torch.stack(frames_tensor, dim=0)
+    frames_tensor = frames_tensor.to(torch_dtype)
     frames_tensor = frames_tensor.unsqueeze(0)  # B, T, C, H, W
+
     input_video_path = f"{args.output_dir}/input_sfi{start_idx}_nf{num_frames}_v{view_idx}_fps{out_fps}.mp4"
-    if not os.path.exists(input_video_path):
-        save_video(frames_tensor, input_video_path, fps=out_fps)
+    save_video(frames_tensor, input_video_path, fps=out_fps)
+
+    input_frames_path= f"{args.output_dir}/input_sfi{start_idx}_nf{num_frames}_v{view_idx}_fps{out_fps}_frames"
+    os.makedirs(input_frames_path, exist_ok=True)
+    save_frames(frames_tensor.squeeze(0), input_frames_path)
+
     frames_tensor_norm = frames_tensor * 2.0 - 1.0
 
     ### Prepare the model for sampling
