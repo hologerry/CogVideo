@@ -13,5 +13,5 @@ args:
   sampling_fps: 8
   fp16: True # For CogVideoX-2B
   # bf16: True # For CogVideoX-5B
-  output_dir: /data/Dynamics/CogVideoX_lora_outputs/2b_raw_sample/
+  output_dir: /data/Dynamics/cogvideox_lora_outputs/2b_raw_sample/
   force_inference: True
