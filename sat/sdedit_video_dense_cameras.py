@@ -64,6 +64,7 @@ def sampling_main(args, model_cls):
 
     for view_idx in trange(view_start_idx, view_end_idx, desc="View"):
         torch.cuda.empty_cache()
+        model.to(device)
         frames_tensor = load_spherical_frames(
             frames_dir,
             start_frame_idx=start_idx,
