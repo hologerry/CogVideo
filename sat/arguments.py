@@ -68,6 +68,8 @@ def add_sdedit_config_args(parser):
     group.add_argument("--sdedit-start-idx", type=int, default=90)
     group.add_argument("--sdedit-num-frames", type=int, default=49)
     group.add_argument("--sdedit-view-idx", type=int, default=0)
+    group.add_argument("--sdedit-view-start-idx", type=int, default=0)
+    group.add_argument("--sdedit-view-end-idx", type=int, default=10)
     group.add_argument("--sdedit-ignore-input-fps", action="store_true")
 
     return parser
