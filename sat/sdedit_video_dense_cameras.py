@@ -199,7 +199,7 @@ def sampling_main(args, model_cls):
             samples_x = recon.permute(0, 2, 1, 3, 4).contiguous()
             samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0).cpu()
 
-            basename = f"view{view_idx}_start{start_idx:03d}_frames{num_frames}_strength{cur_sdedit_strength}"
+            basename = f"view{view_idx:03d}_start{start_idx:03d}_frames{num_frames}_strength{cur_sdedit_strength}"
             basename = basename.replace(".", "d").replace("-", "n")
             output_video_path = os.path.join(args.output_dir, f"{basename}.mp4")
             output_frames_path = os.path.join(args.output_dir, f"{basename}_frames")
