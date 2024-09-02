@@ -3,7 +3,7 @@ This script demonstrates how to generate a video from a text prompt using CogVid
 
 Note:
 
-Must install the `torchao`，`torch`,`diffusers`,`accelerate` library FROM SOURCE to use the quantization feature.
+Must install the `torchao`, `torch`,`diffusers`,`accelerate` library FROM SOURCE to use the quantization feature.
 Only NVIDIA GPUs like H100 or higher are supported om FP-8 quantization.
 
 ALL quantization schemes must using with NVIDIA GPUs.

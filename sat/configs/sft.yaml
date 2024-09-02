@@ -1,20 +1,20 @@
 args:
   checkpoint_activations: True ## using gradient checkpointing
   model_parallel_size: 1
-  experiment_name: lora_cogvidx5b_scalarflow
+  experiment_name: lora_cogvidx5b_scalarflow_60to110
   mode: finetune
-  load: "/data/Dynamics/CogVideoX-5b-sat/transformer"
+  load: "/data/Dynamics/cogvideox-sat/5b/transformer"
   no_load_rng: True
   train_iters: 5000 # Suggest more than 1000 For Lora and SFT For 500 is enough
   eval_iters: 1
   eval_interval: 100
   eval_batch_size: 1
-  save: /data/Dynamics/CogVideoX_5b_lora_ckpts
-  summary_dir: /data/Dynamics/CogVideoX_5b_lora_runs
+  save: /data/Dynamics/cogvideox_lora_ckpts
+  summary_dir: /data/Dynamics/cogvideox_lora_runs
   save_interval: 500
   log_interval: 20
-  train_data: [ "/dev/shm/ScalarFlow_cogvideo_dataset_sub_7090110" ] # Train data path
-  valid_data: [ "/dev/shm/ScalarFlow_cogvideo_dataset_sub_110" ] # Validation data path, can be the same as train_data(not recommended)
+  train_data: [ "/dev/shm/ScalarFlow_cogvideo_dataset_sub_60to110" ] # Train data path
+  valid_data: [ "/dev/shm/ScalarFlow_cogvideo_dataset_sub_90" ] # Validation data path, can be the same as train_data(not recommended)
   split: 1,0,0
   num_workers: 8
   force_train: True
