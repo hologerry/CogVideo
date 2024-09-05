@@ -213,12 +213,14 @@ class SATVideoDiffusionEngine(nn.Module):
         concat_images=None,
         frames_z: Union[None, torch.Tensor] = None,
         sdedit_strength: float = 1.0,
+        prefix_clean_frames=None,
         **kwargs,
     ):
         randn = torch.randn(batch_size, *shape).to(torch.float32).to(self.device)
         if hasattr(self, "seeded_noise"):
             randn = self.seeded_noise(randn)
 
+        # use a different `prefix_clean_frames` variable name for my own overlapping implementation
         if prefix is not None:
             randn = torch.cat([prefix, randn[:, prefix.shape[1] :]], dim=1)
 
@@ -245,6 +247,7 @@ class SATVideoDiffusionEngine(nn.Module):
             scale_emb=scale_emb,
             frames_z=frames_z,
             sdedit_strength=sdedit_strength,
+            prefix_clean_frames=prefix_clean_frames,
         )
         samples = samples.to(self.dtype)
         return samples

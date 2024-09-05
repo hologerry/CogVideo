@@ -137,9 +137,9 @@ def save_frames(frames, output_frames_path):
         frame.save(f"{output_frames_path}/{i:03d}.png")
 
 
-def load_frames(frame_dir, start_frame_idx=90, num_frames=90, view_idx=0, fps=30, ignore_fps=False):
+def load_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False):
     frames = []
-    frame_step = 1 if ignore_fps else 30 // fps
+    frame_step = 1  # if ignore_fps else 30 // fps
     for i in trange(start_frame_idx, start_frame_idx + num_frames * frame_step, frame_step, desc="Loading frames"):
         frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_train{view_idx:02d}_last.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
@@ -151,10 +151,12 @@ def load_frames(frame_dir, start_frame_idx=90, num_frames=90, view_idx=0, fps=30
     return frames
 
 
-def load_spherical_frames(frame_dir, start_frame_idx=90, num_frames=90, view_idx=0, fps=30, ignore_fps=False):
+def load_spherical_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False):
     frames = []
-    frame_step = 1 if ignore_fps else 30 // fps
-    for i in trange(start_frame_idx, start_frame_idx + num_frames * frame_step, frame_step, desc=f"Loading {view_idx:03d} frames"):
+    frame_step = 1  # if ignore_fps else 30 // fps
+    for i in trange(
+        start_frame_idx, start_frame_idx + num_frames * frame_step, frame_step, desc=f"Loading {view_idx:03d} frames"
+    ):
         frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_spherical{view_idx:03d}.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
@@ -163,6 +165,33 @@ def load_spherical_frames(frame_dir, start_frame_idx=90, num_frames=90, view_idx
 
         frames.append(frame)
     return frames
+
+
+def load_zero123_frames(frame_dir, start_frame_idx=90, num_frames=49, max_frame_idx=119, fps=8, ignore_fps=False):
+    frames = []
+    frame_step = 1  # if ignore_fps else 30 // fps
+    for i in trange(start_frame_idx, start_frame_idx + num_frames * frame_step, frame_step, desc="Loading frames"):
+        fi = min(i, max_frame_idx)
+        frame_path = os.path.join(frame_dir, f"frame_{fi:06d}.png")
+        assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
+        frame = cv2.imread(frame_path)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # Remove the background zero123 output noise
+        frame[frame < 10] = 0
+        frame = TF.to_tensor(frame)
+
+        frames.append(frame)
+    return frames
+
+
+def load_label(label_folder, start_frame_idx=90, max_frame_idx=110, view_idx=0):
+    # For label, we only have [10, 110, 10], num_frames must be 49
+    label_name = f"sim_000000_cam_{view_idx:02d}_start_{start_frame_idx:03d}_frames_049.txt"
+    label_path = os.path.join(label_folder, label_name)
+    assert os.path.exists(label_path), f"Label {label_path} does not exist."
+    with open(label_path, "r") as fin:
+        label = fin.read().strip()
+    return label
 
 
 def check_inputs(frame_dir):

@@ -667,6 +667,7 @@ class VPSDEDPMPP2MSampler(VideoDDIMSampler):
         scale_emb=None,
         frames_z=None,
         sdedit_strength=None,
+        prefix_clean_frames=None,
     ):
         # x is just noise
         x, s_in, alpha_cumprod_sqrt, num_sigmas, cond, uc, timesteps = self.prepare_sampling_loop(
@@ -689,6 +690,12 @@ class VPSDEDPMPP2MSampler(VideoDDIMSampler):
         if self.fixed_frames > 0:
             prefix_frames = x[:, : self.fixed_frames]
         old_denoised = None
+
+        # Use my own implementation to handle the overlap
+        if prefix_clean_frames is not None:
+            cur_overlap_fix_n_frames = prefix_clean_frames.shape[1]
+        else:
+            cur_overlap_fix_n_frames = 0
 
         for i in self.get_sigma_gen(num_sigmas, sdedit_strength):
             if self.fixed_frames > 0:
@@ -725,6 +732,14 @@ class VPSDEDPMPP2MSampler(VideoDDIMSampler):
                     # print("SDEDIT s_in", s_in)
                     # print("o" * 30)
 
+                if prefix_clean_frames is not None:
+                    # print("o" * 30)
+                    # print("Overlap i", i)
+                    # print("cur_overlap_fix_n_frames", cur_overlap_fix_n_frames)
+                    # print("o" * 30)
+                    x = torch.cat([prefix_clean_frames, x[:, cur_overlap_fix_n_frames :]], dim=1)
+
+
             x, old_denoised = self.sampler_step(
                 old_denoised,
                 None if i == 0 else s_in * alpha_cumprod_sqrt[i - 1],
@@ -742,6 +757,14 @@ class VPSDEDPMPP2MSampler(VideoDDIMSampler):
 
         if self.fixed_frames > 0:
             x = torch.cat([prefix_frames, x[:, self.fixed_frames :]], dim=1)
+
+
+        if prefix_clean_frames is not None:
+            # print("o" * 30)
+            # print("Overlap last")
+            # print("cur_overlap_fix_n_frames", cur_overlap_fix_n_frames)
+            # print("o" * 30)
+            x = torch.cat([prefix_clean_frames, x[:, cur_overlap_fix_n_frames :]], dim=1)
 
         return x
 

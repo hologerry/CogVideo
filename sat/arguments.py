@@ -63,14 +63,21 @@ def add_sdedit_config_args(parser):
 
     group = parser.add_argument_group("sdedit", "SDEdit Configurations")
     group.add_argument("--sdedit-strength", type=float, default=1.0)
+    group.add_argument("--sdedit-strength-min", type=float, default=0.2)
+    group.add_argument("--sdedit-strength-max", type=float, default=0.8)
+    group.add_argument("--sdedit-strength-step", type=float, default=0.1)
     group.add_argument("--sdedit-prompt-idx", type=int, default=0)
     group.add_argument("--sdedit-frames-dir", type=str, default=None)
+    group.add_argument("--sdedit-labels-dir", type=str, default=None)
     group.add_argument("--sdedit-start-idx", type=int, default=90)
     group.add_argument("--sdedit-num-frames", type=int, default=49)
     group.add_argument("--sdedit-view-idx", type=int, default=0)
+    group.add_argument("--sdedit-tgt-view-idx", type=int, default=0)
     group.add_argument("--sdedit-view-start-idx", type=int, default=0)
     group.add_argument("--sdedit-view-end-idx", type=int, default=10)
     group.add_argument("--sdedit-ignore-input-fps", action="store_true")
+    group.add_argument("--sdedit-zero123-use-ckp2", type=bool, default=False)
+    group.add_argument("--sdedit-zero123-use-ckp2-psnr", type=bool, default=False)
 
     return parser
 
