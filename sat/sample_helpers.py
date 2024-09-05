@@ -167,7 +167,7 @@ def load_spherical_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx
     return frames
 
 
-def load_zero123_frames(frame_dir, start_frame_idx=90, num_frames=49, max_frame_idx=119, fps=8, ignore_fps=False):
+def load_zero123_frames(frame_dir, start_frame_idx=90, num_frames=49, max_frame_idx=119, fps=8, ignore_fps=False, ahack=False):
     frames = []
     frame_step = 1  # if ignore_fps else 30 // fps
     for i in trange(start_frame_idx, start_frame_idx + num_frames * frame_step, frame_step, desc="Loading frames"):

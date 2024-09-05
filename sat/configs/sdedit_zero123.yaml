@@ -22,7 +22,7 @@ args:
   sdedit_zero123_use_ckp2: False
   sdedit_zero123_use_ckp2_psnr: False
   sdedit_view_idx: 0
-  sdedit_tgt_view_idx: 1
+  sdedit_tgt_view_idx: 4
   # sdedit_view_start_idx: 0
   # sdedit_view_end_idx: 10
   sdedit_ignore_input_fps: True

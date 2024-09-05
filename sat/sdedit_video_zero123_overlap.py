@@ -56,7 +56,7 @@ def sampling_main(args, model_cls):
     else:
         tgt_view_ids = [args.sdedit_tgt_view_idx]
     # we use overlap to make the video smooth, and align with the training
-    start_frame_ids = [0, 41, 82]
+    start_frame_ids = [0, 41, 81]
     frame_batch_size = 2
 
     for tgt_view in tgt_view_ids:
@@ -216,7 +216,7 @@ def sampling_main(args, model_cls):
                 start_frame = frame_batch_size * i + (0 if i == 0 else remaining_frames)
                 end_frame = frame_batch_size * (i + 1) + remaining_frames
 
-                if i == loop_num - 1 and start_idx == 82:
+                if i == loop_num - 1 and start_idx == 81:
                     clear_fake_cp_cache = True
                 else:
                     clear_fake_cp_cache = False
