@@ -80,7 +80,7 @@ class VideoDiffusionLoss(StandardDiffusionLoss):
         self.min_snr_value = min_snr_value
         super().__init__(**kwargs)
 
-    def __call__(self, network, denoiser, conditioner, input, batch):
+    def __call__(self, network, denoiser, conditioner, input, batch, is_i2v=False):
         cond = conditioner(batch)
         additional_model_inputs = {key: batch[key] for key in self.batch2model_keys.intersection(batch)}
 
@@ -108,6 +108,8 @@ class VideoDiffusionLoss(StandardDiffusionLoss):
         noised_input = input.float() * append_dims(alphas_cumprod_sqrt, input.ndim) + noise * append_dims(
             (1 - alphas_cumprod_sqrt**2) ** 0.5, input.ndim
         )
+        if is_i2v:
+            noised_input[:, : self.fixed_frames] = input[:, : self.fixed_frames].clone()
 
         model_output = denoiser(network, noised_input, alphas_cumprod_sqrt, cond, **additional_model_inputs)
         w = append_dims(1 / (1 - alphas_cumprod_sqrt**2), input.ndim)  # v-pred

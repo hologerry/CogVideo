@@ -137,8 +137,8 @@ class SATVideoDiffusionEngine(nn.Module):
             param.requires_grad = False
         self.first_stage_model = model
 
-    def forward(self, x, batch):
-        loss = self.loss_fn(self.model, self.denoiser, self.conditioner, x, batch)
+    def forward(self, x, batch, is_i2v=False):
+        loss = self.loss_fn(self.model, self.denoiser, self.conditioner, x, batch, is_i2v=is_i2v)
         loss_mean = loss.mean()
         loss_dict = {"loss": loss_mean}
         return loss_mean, loss_dict
@@ -158,6 +158,23 @@ class SATVideoDiffusionEngine(nn.Module):
         gc.collect()
         torch.cuda.empty_cache()
         loss, loss_dict = self(x, batch)
+        return loss, loss_dict
+
+    def shared_step_i2v(self, batch: Dict) -> Any:
+        x = self.get_input(batch)
+        if self.lr_scale is not None:
+            lr_x = F.interpolate(x, scale_factor=1 / self.lr_scale, mode="bilinear", align_corners=False)
+            lr_x = F.interpolate(lr_x, scale_factor=self.lr_scale, mode="bilinear", align_corners=False)
+            lr_z = self.encode_first_stage(lr_x, batch)
+            batch["lr_input"] = lr_z
+
+        x = x.permute(0, 2, 1, 3, 4).contiguous()
+        x = self.encode_first_stage(x, batch)
+        x = x.permute(0, 2, 1, 3, 4).contiguous()
+
+        gc.collect()
+        torch.cuda.empty_cache()
+        loss, loss_dict = self(x, batch, is_i2v=True)
         return loss, loss_dict
 
     def get_input(self, batch):

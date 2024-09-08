@@ -50,7 +50,7 @@ def sampling_main(args, model_cls):
     ignore_input_fps = args.sdedit_ignore_input_fps
 
     # the frame 20 in scalarflow is the first scalarreal frame
-    view_idx_to_label_idx_offset = 20
+    frame_idx_to_label_idx_offset = 20
     if args.sdedit_tgt_view_idx == "all":
         tgt_view_ids = [i for i in range(5)]
     else:
@@ -97,7 +97,7 @@ def sampling_main(args, model_cls):
             )
             prompt = load_label(
                 labels_dir,
-                start_frame_idx=(view_idx_to_label_idx_offset + start_idx) // 10 * 10,
+                start_frame_idx=(frame_idx_to_label_idx_offset + start_idx) // 10 * 10,
                 max_frame_idx=110,
                 view_idx=tgt_view,
             )
@@ -109,11 +109,11 @@ def sampling_main(args, model_cls):
             frames_tensor = frames_tensor.unsqueeze(0)  # B, T, C, H, W
 
             input_video_path = f"{cogvx_output_full_dir}/input_sfi{start_idx}_nf{cur_num_frames}_fps{out_fps}.mp4"
-            save_video(frames_tensor, input_video_path, fps=out_fps)
+            save_video(frames_tensor.float(), input_video_path, fps=out_fps)
 
             input_frames_path = f"{cogvx_output_full_dir}/input_sfi{start_idx}_nf{cur_num_frames}_fps{out_fps}_frames"
             os.makedirs(input_frames_path, exist_ok=True)
-            save_frames(frames_tensor.squeeze(0), input_frames_path)
+            save_frames(frames_tensor.squeeze(0).float(), input_frames_path)
 
             frames_tensor_norm = frames_tensor * 2.0 - 1.0
 

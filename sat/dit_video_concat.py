@@ -276,7 +276,8 @@ class Rotary3DPositionEmbeddingMixin(BaseMixin):
         freqs_cos = self.freqs_cos[:seq_len].unsqueeze(0).unsqueeze(0)
         freqs_sin = self.freqs_sin[:seq_len].unsqueeze(0).unsqueeze(0)
 
-        return t * freqs_cos + rotate_half(t) * freqs_sin
+        rht = rotate_half(t)
+        return t * freqs_cos + rht * freqs_sin
 
     def position_embedding_forward(self, position_ids, **kwargs):
         return None
@@ -766,4 +767,5 @@ class DiffusionTransformer(BaseModel):
         kwargs["input_ids"] = kwargs["position_ids"] = kwargs["attention_mask"] = torch.ones((1, 1)).to(x.dtype)
         output = super().forward(**kwargs)[0]
 
+        return output
         return output

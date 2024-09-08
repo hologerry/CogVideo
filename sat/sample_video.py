@@ -98,14 +98,14 @@ def sampling_main(args, model_cls):
 
                 # Decode latent serial to save GPU memory
                 recons = []
-                # loop_num = (T - 1) // 2
-                loop_num = T // 2
+                loop_num = (T - 1) // 2
+                # loop_num = T // 2
                 for i in range(loop_num):
-                    # if i == 0:
-                    #     start_frame, end_frame = 0, 3
-                    # else:
-                    #     start_frame, end_frame = i * 2 + 1, i * 2 + 3
-                    start_frame, end_frame = i * 2, i * 2 + 2
+                    if i == 0:
+                        start_frame, end_frame = 0, 3
+                    else:
+                        start_frame, end_frame = i * 2 + 1, i * 2 + 3
+                    # start_frame, end_frame = i * 2, i * 2 + 2
                     if i == loop_num - 1:
                         clear_fake_cp_cache = True
                     else:

@@ -140,8 +140,51 @@ def save_frames(frames, output_frames_path):
 def load_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False):
     frames = []
     frame_step = 1  # if ignore_fps else 30 // fps
-    for i in trange(start_frame_idx, start_frame_idx + num_frames * frame_step, frame_step, desc="Loading frames"):
+    for i in trange(
+        start_frame_idx,
+        start_frame_idx + num_frames * frame_step,
+        frame_step,
+        desc=f"Loading {view_idx} frames",
+    ):
         frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_train{view_idx:02d}_last.png")
+        assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
+        frame = cv2.imread(frame_path)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = TF.to_tensor(frame)
+
+        frames.append(frame)
+    return frames
+
+
+def load_gt_prefix_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False):
+    frames = []
+    frame_step = 1  # if ignore_fps else 30 // fps
+    for i in trange(
+        start_frame_idx,
+        start_frame_idx + num_frames * frame_step,
+        frame_step,
+        desc=f"Loading {view_idx} frames",
+    ):
+        frame_path = os.path.join(frame_dir, f"train{view_idx:02d}_for_cogvideox", f"{i:03d}.png")
+        assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
+        frame = cv2.imread(frame_path)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = TF.to_tensor(frame)
+
+        frames.append(frame)
+    return frames
+
+
+def load_fake_prefix_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False):
+    frames = []
+    frame_step = 1  # if ignore_fps else 30 // fps
+    for i in trange(
+        start_frame_idx,
+        start_frame_idx + num_frames * frame_step,
+        frame_step,
+        desc=f"Loading {view_idx} frames",
+    ):
+        frame_path = os.path.join(frame_dir, f"{i:03d}.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -155,7 +198,10 @@ def load_spherical_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx
     frames = []
     frame_step = 1  # if ignore_fps else 30 // fps
     for i in trange(
-        start_frame_idx, start_frame_idx + num_frames * frame_step, frame_step, desc=f"Loading {view_idx:03d} frames"
+        start_frame_idx,
+        start_frame_idx + num_frames * frame_step,
+        frame_step,
+        desc=f"Loading {view_idx:03d} frames",
     ):
         frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_spherical{view_idx:03d}.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
@@ -167,7 +213,15 @@ def load_spherical_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx
     return frames
 
 
-def load_zero123_frames(frame_dir, start_frame_idx=90, num_frames=49, max_frame_idx=119, fps=8, ignore_fps=False, ahack=False):
+def load_zero123_frames(
+    frame_dir,
+    start_frame_idx=90,
+    num_frames=49,
+    max_frame_idx=119,
+    fps=8,
+    ignore_fps=False,
+    ahack=False,
+):
     frames = []
     frame_step = 1  # if ignore_fps else 30 // fps
     for i in trange(start_frame_idx, start_frame_idx + num_frames * frame_step, frame_step, desc="Loading frames"):
@@ -186,12 +240,24 @@ def load_zero123_frames(frame_dir, start_frame_idx=90, num_frames=49, max_frame_
 
 def load_label(label_folder, start_frame_idx=90, max_frame_idx=110, view_idx=0):
     # For label, we only have [10, 110, 10], num_frames must be 49
-    label_name = f"sim_000000_cam_{view_idx:02d}_start_{start_frame_idx:03d}_frames_049.txt"
+    frame_idx = min(start_frame_idx, max_frame_idx)
+    label_name = f"sim_000000_cam_{view_idx:02d}_start_{frame_idx:03d}_frames_049.txt"
     label_path = os.path.join(label_folder, label_name)
     assert os.path.exists(label_path), f"Label {label_path} does not exist."
     with open(label_path, "r") as fin:
         label = fin.read().strip()
     return label
+
+
+def blend_frames(cur_frames, frame_to_blend, blend_frame_num):
+    blended_cur_frames = []
+    for i, frame in enumerate(cur_frames):
+        if i < blend_frame_num:
+            blended_frame = frame_to_blend.detach().clone()
+            blended_cur_frames.append(blended_frame)
+        else:
+            blended_cur_frames.append(frame)
+    return blended_cur_frames
 
 
 def check_inputs(frame_dir):

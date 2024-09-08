@@ -129,6 +129,7 @@ model:
   loss_fn_config:
     target: sgm.modules.diffusionmodules.loss.VideoDiffusionLoss
     params:
+      fixed_frames: 1
       offset_noise_level: 0
       sigma_sampler_config:
         target: sgm.modules.diffusionmodules.sigma_sampling.DiscreteSampling
