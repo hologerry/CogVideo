@@ -38,7 +38,9 @@ def load_frames(
 
     frames = []
     for i in trange(start_frame_idx, start_frame_idx + num_frames, desc="Loading frames"):
-        frame_path = os.path.join(frame_dir, sequence_name, f"view{view_id:02d}_clip{clip_id:02d}", f"im{i:05d}.png")
+        # frame_path = os.path.join(frame_dir, sequence_name, f"view{view_id:02d}_clip{clip_id:02d}", f"im{i:05d}.png")
+        # /data/Free/sparse_view_codec_outputs/out_bin/ds20220811_view0_clip10_seqview00_clip10_q35/im00001.png
+        frame_path = os.path.join(frame_dir, f"im{i+1:05d}.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
         frame = cv2.resize(frame, vae_frame_size, interpolation=cv2.INTER_AREA)
@@ -64,18 +66,18 @@ def sampling_main(args, model_cls):
     model.eval()
     device = model.device
     torch_dtype = model.dtype
-
     prompt = ""
 
-    data_root = ""
-    output_root = ""
+    # data_root = "/data/Free/data/vcube_data_2023_codec"
+    data_root = "/data/Free/sparse_view_codec_outputs/out_bin/ds20220811_view6_clip10_seqview06_clip10_q63"
+    output_root = "/data/Free/sparse_view_codec_outputs/5b_0909"
 
     sequence_name = "20220811162658"
-    view_id = 0
+    view_id = 6
     clip_id = 10
     cur_folder_name = f"vae_{sequence_name}_view{view_id:02d}_clip{clip_id:02d}"
 
-    start_frame_idx = 0
+    start_frame_idx = 47
     total_frames = 49
     raw_frame_size = (1280, 960)
     vae_frame_size = (720, 480)
