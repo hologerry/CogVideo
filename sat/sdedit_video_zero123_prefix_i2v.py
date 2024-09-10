@@ -7,7 +7,6 @@ from json import load
 import lovely_tensors as lt
 import numpy as np
 import torch
-from tqdm import trange
 
 from arguments import get_args
 from diffusion_video import SATVideoDiffusionEngine
@@ -17,9 +16,11 @@ from sample_helpers import (
     get_unique_embedder_keys_from_conditioner,
     load_label,
     load_zero123_frames,
+    load_fake_prefix_frames,
     save_frames,
     save_video,
 )
+from tqdm import trange
 
 from sat.model.base_model import get_model
 from sat.training.model_io import load_checkpoint
@@ -42,22 +43,28 @@ def sampling_main(args, model_cls):
     device = model.device
     torch_dtype = model.dtype
 
-    ### Reading the frames
-    frames_dir = args.sdedit_frames_dir
+    prefix_frames_dir = args.sdedit_prefix_frames_dir
+    prefix_start_idx = args.sdedit_prefix_start_idx
+    prefix_num_frames = args.sdedit_prefix_num_frames
+
     labels_dir = args.sdedit_labels_dir
+
+    frames_dir = args.sdedit_frames_dir
+    start_idx = args.sdedit_start_idx
     num_frames = args.sdedit_num_frames
     view_idx = args.sdedit_view_idx
     ignore_input_fps = args.sdedit_ignore_input_fps
 
     # the frame 20 in scalarflow is the first scalarreal frame
     frame_idx_to_label_idx_offset = 20
+    frame_batch_size = 2
+    prefix_num_latent_frames = prefix_num_frames // 3
+
     if args.sdedit_tgt_view_idx == "all":
         tgt_view_ids = [i for i in range(5)]
     else:
         tgt_view_ids = [args.sdedit_tgt_view_idx]
-    # we use overlap to make the video smooth, and align with the training
-    start_frame_ids = [0, 41, 81]
-    frame_batch_size = 2
+
 
     for tgt_view in tgt_view_ids:
         if view_idx == tgt_view:
@@ -70,110 +77,123 @@ def sampling_main(args, model_cls):
         else:
             zero123_output_dir = f"zero123_finetune_15000_cam{view_idx}to{tgt_view}_for_cogvideox"
 
-        cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", "cogvideox_5b_all_pred_overlap_cache")
+        prefix_output_dir = zero123_output_dir.replace("for_cogvideox", "cogvideox_5b_all_pred_single")
+        prefix_output_full_dir = os.path.join(args.output_dir, prefix_output_dir, f"output_sfi000_nf65_strength0d26_frames")
 
+        cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", f"cogvideox_5b_all_pred_prefix_one")
         cogvx_output_full_dir = os.path.join(args.output_dir, cogvx_output_dir)
         os.makedirs(cogvx_output_full_dir, exist_ok=True)
 
-        # keep last n clean samples in latent space, for 2 it maps to 8 frames, and aligned with the vae decoding frame batch
-        keep_n_clean_samples = 2
-        keeped_clean_samples_z = None
+        model.to(device)
 
-        for start_idx in start_frame_ids:
+        prefix_frames_tensor = load_fake_prefix_frames(
+            prefix_output_full_dir,
+            start_frame_idx=prefix_start_idx,
+            num_frames=prefix_num_frames,
+            view_idx=view_idx,
+            ignore_fps=ignore_input_fps,
+        )
+        cur_num_frames = num_frames - prefix_num_frames
 
-            model.to(device)
-            # for first start_idx, use 49 frames, for the rest, use 48 frames
-            cur_num_frames = num_frames if start_idx == 0 else num_frames - 1
-            cur_sampling_nums = 13 if start_idx == 0 else 12
+        cur_frames_tensor = load_zero123_frames(
+            os.path.join(frames_dir, zero123_output_dir),
+            start_frame_idx=start_idx,
+            num_frames=cur_num_frames,
+            max_frame_idx=119,
+            ignore_fps=ignore_input_fps,
+        )
+        frames_tensor = prefix_frames_tensor + cur_frames_tensor
 
-            print(f"start_idx: {start_idx}, cur_num_frames: {cur_num_frames}, cur_sampling_nums: {cur_sampling_nums}")
+        label_start_idx = prefix_start_idx
 
-            frames_tensor = load_zero123_frames(
-                os.path.join(frames_dir, zero123_output_dir),
-                start_frame_idx=start_idx,
-                num_frames=cur_num_frames,
-                max_frame_idx=119,
-                ignore_fps=ignore_input_fps,
-            )
-            prompt = load_label(
-                labels_dir,
-                start_frame_idx=(frame_idx_to_label_idx_offset + start_idx) // 10 * 10,
-                max_frame_idx=110,
-                view_idx=tgt_view,
-            )
+        prompt = load_label(
+            labels_dir,
+            start_frame_idx=(frame_idx_to_label_idx_offset + label_start_idx) // 10 * 10,
+            max_frame_idx=110,
+            view_idx=tgt_view,
+        )
 
-            out_fps = args.sampling_fps
+        out_fps = args.sampling_fps
 
-            frames_tensor = torch.stack(frames_tensor, dim=0)
-            frames_tensor = frames_tensor.to(torch_dtype)
-            frames_tensor = frames_tensor.unsqueeze(0)  # B, T, C, H, W
+        frames_tensor = torch.stack(frames_tensor, dim=0)
+        frames_tensor = frames_tensor.to(torch_dtype)
+        frames_tensor = frames_tensor.unsqueeze(0)  # B, T, C, H, W
 
-            input_video_path = f"{cogvx_output_full_dir}/input_sfi{start_idx}_nf{cur_num_frames}_fps{out_fps}.mp4"
-            save_video(frames_tensor.float(), input_video_path, fps=out_fps)
+        input_video_path = f"{cogvx_output_full_dir}/input_sfi{start_idx}_nf{num_frames}_fps{out_fps}.mp4"
+        save_video(frames_tensor.float(), input_video_path, fps=out_fps)
 
-            input_frames_path = f"{cogvx_output_full_dir}/input_sfi{start_idx}_nf{cur_num_frames}_fps{out_fps}_frames"
-            os.makedirs(input_frames_path, exist_ok=True)
-            save_frames(frames_tensor.squeeze(0).float(), input_frames_path)
+        input_frames_path = f"{cogvx_output_full_dir}/input_sfi{start_idx}_nf{num_frames}_fps{out_fps}_frames"
+        os.makedirs(input_frames_path, exist_ok=True)
+        save_frames(frames_tensor.float().squeeze(0), input_frames_path)
 
-            frames_tensor_norm = frames_tensor * 2.0 - 1.0
+        frames_tensor_norm = frames_tensor * 2.0 - 1.0
 
-            ### Prepare the model for sampling
-            sdedit_strength = 1.0  # 1.0 means full sampling (all sigmas are returned)
-            if args.sdedit_strength is not None:
-                sdedit_strength = args.sdedit_strength
-                assert (
-                    isinstance(sdedit_strength, float) and 0.0 <= sdedit_strength <= 1.0
-                ), f"Invalid sdedit_strength: {sdedit_strength}"
+        ### Prepare the model for sampling
+        # sdedit_strength = 1.0  # 1.0 means full sampling (all sigmas are returned)
+        # if args.sdedit_strength is not None:
+        #     sdedit_strength = args.sdedit_strength
+        #     if sdedit_strength == "all":
+        #         all_strenths = np.arange(args.sdedit_strength_min, args.sdedit_strength_max, args.sdedit_strength_step)
+        #     elif isinstance(sdedit_strength, float) and 0.0 <= sdedit_strength <= 1.0:
+        #         all_strenths = [sdedit_strength]
+        #     else:
+        #         raise ValueError(f"Invalid sdedit_strength: {sdedit_strength}")
+        # else:
+        #     all_strenths = [sdedit_strength]
+        all_strenths = [0.26]
 
-            image_size = [480, 720]
+        image_size = [480, 720]
 
-            T, H, W, C, F = cur_sampling_nums, image_size[0], image_size[1], args.latent_channels, 8
-            num_samples = [1]
-            force_uc_zero_embeddings = ["txt"]
+        T, H, W, C, F = args.sampling_num_frames, image_size[0], image_size[1], args.latent_channels, 8
+        num_samples = [1]
+        force_uc_zero_embeddings = ["txt"]
 
-            value_dict = {
-                "prompt": prompt,
-                "negative_prompt": "",
-                "num_frames": torch.tensor(T).unsqueeze(0),
-            }
+        value_dict = {
+            "prompt": prompt,
+            "negative_prompt": "",
+            "num_frames": torch.tensor(T).unsqueeze(0),
+        }
 
-            batch, batch_uc = get_batch(
-                get_unique_embedder_keys_from_conditioner(model.conditioner),
-                value_dict,
-                num_samples,
-            )
-            for key in batch:
-                if isinstance(batch[key], torch.Tensor):
-                    print(key, batch[key].shape)
-                elif isinstance(batch[key], list):
-                    print(key, [len(l) for l in batch[key]])
-                else:
-                    print(key, batch[key])
-            c, uc = model.conditioner.get_unconditional_conditioning(
-                batch,
-                batch_uc=batch_uc,
-                force_uc_zero_embeddings=force_uc_zero_embeddings,
-            )
+        batch, batch_uc = get_batch(
+            get_unique_embedder_keys_from_conditioner(model.conditioner),
+            value_dict,
+            num_samples,
+        )
+        for key in batch:
+            if isinstance(batch[key], torch.Tensor):
+                print(key, batch[key].shape)
+            elif isinstance(batch[key], list):
+                print(key, [len(l) for l in batch[key]])
+            else:
+                print(key, batch[key])
+        c, uc = model.conditioner.get_unconditional_conditioning(
+            batch,
+            batch_uc=batch_uc,
+            force_uc_zero_embeddings=force_uc_zero_embeddings,
+        )
 
-            for k in c:
-                if not k == "crossattn":
-                    c[k], uc[k] = map(lambda y: y[k][: math.prod(num_samples)].to("cuda"), (c, uc))
+        for k in c:
+            if not k == "crossattn":
+                c[k], uc[k] = map(lambda y: y[k][: math.prod(num_samples)].to("cuda"), (c, uc))
 
-            # Offload the model from GPU to save GPU memory
-            model.to("cpu")
-            torch.cuda.empty_cache()
-            model.first_stage_model.to(device)
-            # B, T, C, H, W -> B, C, T, H, W
-            frames_tensor_norm = frames_tensor_norm.permute(0, 2, 1, 3, 4).contiguous().to(device)
+        # Offload the model from GPU to save GPU memory
+        model.to("cpu")
+        torch.cuda.empty_cache()
+        model.first_stage_model.to(device)
+        # B, T, C, H, W -> B, C, T, H, W
+        frames_tensor_norm = frames_tensor_norm.permute(0, 2, 1, 3, 4).contiguous().to(device)
 
-            # batch is not used in `encode_first_stage` method
-            frames_z = model.encode_first_stage(frames_tensor_norm, batch)
-            # B, C, T, H, W -> B, T, C, H, W
-            frames_z = frames_z.permute(0, 2, 1, 3, 4).contiguous()
-            assert frames_z.shape == (1, T, C, H // F, W // F), f"Encoded frames_z shape: {frames_z.shape} not correct"
+        # batch is not used in `encode_first_stage` method
+        frames_z = model.encode_first_stage(frames_tensor_norm, batch)
+        # B, C, T, H, W -> B, T, C, H, W
+        frames_z = frames_z.permute(0, 2, 1, 3, 4).contiguous()
+        assert frames_z.shape == (1, T, C, H // F, W // F), f"Encoded frames_z shape: {frames_z.shape} not correct"
 
-            # in this mode only one strength is used
-            sdedit_strength = round(sdedit_strength, 2)
+        prefix_frames_z = frames_z[:, :prefix_num_latent_frames].detach().clone()
+
+        for strength in all_strenths:
+            cur_sdedit_strength = strength
+            cur_sdedit_strength = round(cur_sdedit_strength, 2)
             # Unload the first stage model from GPU to save GPU memory
             model.to(device)
             model.first_stage_model.to("cpu")
@@ -184,10 +204,9 @@ def sampling_main(args, model_cls):
                 batch_size=1,
                 shape=(T, C, H // F, W // F),
                 frames_z=frames_z,
-                sdedit_strength=sdedit_strength,
-                prefix_clean_frames=keeped_clean_samples_z,
+                sdedit_strength=cur_sdedit_strength,
+                prefix_clean_frames=prefix_frames_z,
             )
-            keeped_clean_samples_z = samples_z[:, -keep_n_clean_samples:].detach().clone()
             # B, T, C, H, W -> B, C, T, H, W
             samples_z = samples_z.permute(0, 2, 1, 3, 4).contiguous()
 
@@ -209,14 +228,12 @@ def sampling_main(args, model_cls):
 
             # drop the last batch frame, as it is the same as the first frame in the next batch
             # this is important, as we keep the context cache in vae, if we decode, the context cache missmatch
-            loop_num = loop_num - 1
 
-            for i in range(loop_num):
-
+            for i in trange(loop_num, desc="Decoding"):
                 start_frame = frame_batch_size * i + (0 if i == 0 else remaining_frames)
                 end_frame = frame_batch_size * (i + 1) + remaining_frames
 
-                if i == loop_num - 1 and start_idx == 81:
+                if i == loop_num - 1:
                     clear_fake_cp_cache = True
                 else:
                     clear_fake_cp_cache = False
@@ -233,7 +250,7 @@ def sampling_main(args, model_cls):
             samples_x = recon.permute(0, 2, 1, 3, 4).contiguous()
             samples = torch.clamp((samples_x + 1.0) / 2.0, min=0.0, max=1.0).cpu()
 
-            basename = f"overlap_output_sfi{start_idx:03d}_nf{cur_num_frames}_strength{sdedit_strength}"
+            basename = f"output_sfi{start_idx:03d}_nf{num_frames}_strength{cur_sdedit_strength}"
             basename = basename.replace(".", "d").replace("-", "n")
             output_video_path = os.path.join(cogvx_output_full_dir, f"{basename}.mp4")
             output_frames_path = os.path.join(cogvx_output_full_dir, f"{basename}_frames")

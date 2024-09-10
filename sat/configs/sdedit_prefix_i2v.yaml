@@ -1,0 +1,34 @@
+args:
+  latent_channels: 16
+  mode: inference
+  # load: "{your CogVideoX SAT folder}/transformer" # This is for Full model without lora adapter
+  # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
+  # load: "/data/Dynamics/cogvideox-sat/2b/transformer"
+  load: /data/Dynamics/cogvideox_lora_ckpts/lora_cogvidx5b_scalarflow_all_i2v_fix3samples-09-09-05-39/
+
+  batch_size: 1
+  input_type: txt
+  input_file: configs/test_smoke.txt
+
+  sdedit_strength: 0.75  # 'all'  # 0.0 to 1.0, 1.0 means full sampling
+  sdedit_prompt_idx: 0
+  sdedit_prefix_gt: False
+  sdedit_labels_dir: /data/Dynamics/ScalarFlow_cogvideox_dataset/labels
+  sdedit_prefix_frames_dir: /data/Dynamics/ScalarReal
+  # sdedit_prefix_frames_dir: /data/Dynamics/cogvideox_lora_outputs/5b_lora_all_sdedit_gt_prefix_fullencdec/prefix_view0_start090_frames49_strength0d75_frames
+  sdedit_frames_dir: /data/Dynamics/gaussian_fluid_dynamics_log/gaussian_pbd_fluid_scalar_simrec_simple/gpf_basic_siminrec_simple_gascsprat_velnn_velgascsprat_l2gascs_lcurdist01_lexyz01_dur90_fut90_sol5_p01d5_emitfirstymoremore_decayp030/training_render_for_generative_cogvideox_unshift/
+  sdedit_prefix_start_idx: 81
+  sdedit_prefix_num_frames: 9
+  sdedit_start_idx: 90
+  sdedit_num_frames: 65
+  sdedit_view_idx: 0
+  # sdedit_view_start_idx: 0
+  # sdedit_view_end_idx: 10
+  sdedit_ignore_input_fps: True
+
+  sampling_num_frames: 17  # Must be 13, 11 or 9
+  sampling_fps: 8
+  # fp16: True # For CogVideoX-2B
+  bf16: True # For CogVideoX-5B
+  output_dir: /data/Dynamics/cogvideox_lora_outputs/5b_lora_all_sdedit_zero123_prefix_i2v_3samples/
+  force_inference: True

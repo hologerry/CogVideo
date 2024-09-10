@@ -19,6 +19,7 @@ from sample_helpers import (
     save_frames,
     save_video,
 )
+from tqdm import trange
 
 from sat.model.base_model import get_model
 from sat.training.model_io import load_checkpoint
@@ -42,20 +43,24 @@ def sampling_main(args, model_cls):
     torch_dtype = model.dtype
 
     ### Reading the frames
-    frames_dir = args.sdedit_frames_dir
+
     labels_dir = args.sdedit_labels_dir
+
+    frames_dir = args.sdedit_frames_dir
     num_frames = args.sdedit_num_frames
     view_idx = args.sdedit_view_idx
     ignore_input_fps = args.sdedit_ignore_input_fps
 
     # the frame 20 in scalarflow is the first scalarreal frame
-    view_idx_to_label_idx_offset = 20
+    frame_idx_to_label_idx_offset = 20
+    frame_batch_size = 2
+
     if args.sdedit_tgt_view_idx == "all":
         tgt_view_ids = [i for i in range(5)]
     else:
         tgt_view_ids = [args.sdedit_tgt_view_idx]
-    # we use overlap to make the video smooth, and align with the training
-    start_frame_ids = [0, 40, 80]
+
+    start_frame_ids = [0]
 
     for tgt_view in tgt_view_ids:
         if view_idx == tgt_view:
@@ -68,11 +73,10 @@ def sampling_main(args, model_cls):
         else:
             zero123_output_dir = f"zero123_finetune_15000_cam{view_idx}to{tgt_view}_for_cogvideox"
 
-        cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", "cogvideox_5b_all_pred")
+        cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", "cogvideox_5b_all_pred_single")
 
         cogvx_output_full_dir = os.path.join(args.output_dir, cogvx_output_dir)
         os.makedirs(cogvx_output_full_dir, exist_ok=True)
-
 
         for start_idx in start_frame_ids:
 
@@ -87,7 +91,7 @@ def sampling_main(args, model_cls):
             )
             prompt = load_label(
                 labels_dir,
-                start_frame_idx=(view_idx_to_label_idx_offset + start_idx)//10*10,
+                start_frame_idx=(frame_idx_to_label_idx_offset + start_idx) // 10 * 10,
                 max_frame_idx=110,
                 view_idx=tgt_view,
             )
@@ -99,11 +103,11 @@ def sampling_main(args, model_cls):
             frames_tensor = frames_tensor.unsqueeze(0)  # B, T, C, H, W
 
             input_video_path = f"{cogvx_output_full_dir}/input_sfi{start_idx}_nf{num_frames}_fps{out_fps}.mp4"
-            save_video(frames_tensor, input_video_path, fps=out_fps)
+            save_video(frames_tensor.float(), input_video_path, fps=out_fps)
 
             input_frames_path = f"{cogvx_output_full_dir}/input_sfi{start_idx}_nf{num_frames}_fps{out_fps}_frames"
             os.makedirs(input_frames_path, exist_ok=True)
-            save_frames(frames_tensor.squeeze(0), input_frames_path)
+            save_frames(frames_tensor.float().squeeze(0), input_frames_path)
 
             frames_tensor_norm = frames_tensor * 2.0 - 1.0
 
@@ -197,15 +201,17 @@ def sampling_main(args, model_cls):
 
                 ## Decode latent serial to save GPU memory
                 recons = []
-                loop_num = (T - 1) // 2
-                # loop_num = T // 2
-                for i in range(loop_num):
-                    if i == 0:
-                        start_frame, end_frame = 0, 3
-                    else:
-                        start_frame, end_frame = i * 2 + 1, i * 2 + 3
+                loop_num = T // frame_batch_size  # 2 is vae decoding frame batch size
+                remaining_frames = T % frame_batch_size
 
-                    # start_frame, end_frame = i * 2, i * 2 + 2
+                print(f"loop_num: {loop_num}, remaining_frames: {remaining_frames}")
+
+                # drop the last batch frame, as it is the same as the first frame in the next batch
+                # this is important, as we keep the context cache in vae, if we decode, the context cache missmatch
+
+                for i in trange(loop_num, desc="Decoding"):
+                    start_frame = frame_batch_size * i + (0 if i == 0 else remaining_frames)
+                    end_frame = frame_batch_size * (i + 1) + remaining_frames
 
                     if i == loop_num - 1:
                         clear_fake_cp_cache = True

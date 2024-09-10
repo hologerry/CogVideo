@@ -31,16 +31,6 @@ def sampling_main(args, model_cls):
     check_inputs(args.sdedit_frames_dir)
     os.makedirs(args.output_dir, exist_ok=True)
 
-    if isinstance(model_cls, type):
-        model: SATVideoDiffusionEngine = get_model(args, model_cls)
-    else:
-        model: SATVideoDiffusionEngine = model_cls
-
-    load_checkpoint(model, args)
-
-    model.eval()
-    device = model.device
-    torch_dtype = model.dtype
 
     ### Reading the frames
     prefix_frames_dir = args.sdedit_prefix_frames_dir
@@ -90,15 +80,14 @@ def sampling_main(args, model_cls):
         ignore_fps=ignore_input_fps,
     )
 
-    blended_cur_frames_tensor = blend_frames(
-        cur_frames_tensor,
-        prefix_frames_tensor[-1],
-        len(cur_frames_tensor),
-    )
+    # blended_cur_frames_tensor = blend_frames(
+    #     cur_frames_tensor,
+    #     prefix_frames_tensor[-1],
+    #     8,
+    # )
 
-    # frames_tensor = prefix_frames_tensor + cur_frames_tensor
-    frames_tensor = prefix_frames_tensor + blended_cur_frames_tensor
-    # frames_tensor = blended_cur_frames_tensor
+    frames_tensor = prefix_frames_tensor + cur_frames_tensor
+    # frames_tensor = prefix_frames_tensor + blended_cur_frames_tensor
     label_start_idx = prefix_start_idx
 
     prompt = load_label(
@@ -109,6 +98,17 @@ def sampling_main(args, model_cls):
     )
 
     out_fps = args.sampling_fps
+
+    if isinstance(model_cls, type):
+        model: SATVideoDiffusionEngine = get_model(args, model_cls)
+    else:
+        model: SATVideoDiffusionEngine = model_cls
+
+    load_checkpoint(model, args)
+
+    model.eval()
+    device = model.device
+    torch_dtype = model.dtype
 
     frames_tensor = torch.stack(frames_tensor, dim=0)
     frames_tensor = frames_tensor.to(torch_dtype)

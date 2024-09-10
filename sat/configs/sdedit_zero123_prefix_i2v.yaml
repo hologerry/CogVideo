@@ -4,6 +4,7 @@ args:
   # load: "{your CogVideoX SAT folder}/transformer" # This is for Full model without lora adapter
   # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
   # load: "/data/Dynamics/cogvideox-sat/2b/transformer"
+  # load: /data/Dynamics/cogvideox_lora_ckpts/lora_cogvidx5b_scalarflow_all_i2v_fix3samples-09-09-05-39/
   load: /data/Dynamics/cogvideox_lora_ckpts/lora_cogvidx5b_scalarflow_all-09-03-06-50/
 
   batch_size: 1
@@ -25,7 +26,7 @@ args:
   sdedit_zero123_use_ckp2: False
   sdedit_zero123_use_ckp2_psnr: False
   sdedit_view_idx: 0
-  sdedit_tgt_view_idx: 1
+  sdedit_tgt_view_idx: 4
   # sdedit_view_start_idx: 0
   # sdedit_view_end_idx: 10
   sdedit_ignore_input_fps: True

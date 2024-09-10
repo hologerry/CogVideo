@@ -144,14 +144,14 @@ def load_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8,
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
         frame_step,
-        desc=f"Loading {view_idx} frames",
+        desc=f"Loading frames in view {view_idx}",
     ):
         frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_train{view_idx:02d}_last.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
+        frame[frame < 5] = 0
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = TF.to_tensor(frame)
-
         frames.append(frame)
     return frames
 
@@ -163,11 +163,12 @@ def load_gt_prefix_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
         frame_step,
-        desc=f"Loading {view_idx} frames",
+        desc=f"Loading frames in view {view_idx}",
     ):
         frame_path = os.path.join(frame_dir, f"train{view_idx:02d}_for_cogvideox", f"{i:03d}.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
+        frame[frame < 5] = 0
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = TF.to_tensor(frame)
 
@@ -182,14 +183,14 @@ def load_fake_prefix_frames(frame_dir, start_frame_idx=90, num_frames=49, view_i
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
         frame_step,
-        desc=f"Loading {view_idx} frames",
+        desc=f"Loading frames in view {view_idx}",
     ):
-        frame_path = os.path.join(frame_dir, f"{i:03d}.png")
+        frame_path = os.path.join(frame_dir, f"frame_{i:06d}.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame[frame < 5] = 0
         frame = TF.to_tensor(frame)
-
         frames.append(frame)
     return frames
 
@@ -201,14 +202,14 @@ def load_spherical_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
         frame_step,
-        desc=f"Loading {view_idx:03d} frames",
+        desc=f"Loading frames in view {view_idx:03d}",
     ):
         frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_spherical{view_idx:03d}.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame[frame < 5] = 0
         frame = TF.to_tensor(frame)
-
         frames.append(frame)
     return frames
 
