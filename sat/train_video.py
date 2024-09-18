@@ -17,6 +17,12 @@ from sgm.util import get_obj_from_str, isheatmap
 from sat import mpu
 from sat.training.deepspeed_training import training_main
 
+from sgm.util import get_obj_from_str, isheatmap
+
+from diffusion_video import SATVideoDiffusionEngine
+from arguments import get_args
+
+from einops import rearrange
 
 try:
     import wandb

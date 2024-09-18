@@ -370,6 +370,8 @@ class SFTDataset(Dataset):
         """
         super().__init__()
 
+        # TODO: copy the upstream version
+
         # self.videos_list = []
         # self.captions_list = []
         # self.num_frames_list = []

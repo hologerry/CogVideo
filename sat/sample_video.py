@@ -3,15 +3,19 @@ import math
 import os
 
 import torch
+import numpy as np
+from einops import rearrange
+import torchvision.transforms as TT
 
 from arguments import get_args
 from diffusion_video import SATVideoDiffusionEngine
 from tqdm import tqdm
+import torchvision.transforms as TT
 
 from sat import mpu
 from sat.model.base_model import get_model
 from sat.training.model_io import load_checkpoint
-
+from PIL import Image
 from sample_helpers import (
     get_batch,
     get_unique_embedder_keys_from_conditioner,
@@ -41,6 +45,11 @@ def sampling_main(args, model_cls):
 
     image_size = [480, 720]
 
+    if args.image2video:
+        chained_trainsforms = []
+        chained_trainsforms.append(TT.ToTensor())
+        transform = TT.Compose(chained_trainsforms)
+
     sample_func = model.sample
     T, H, W, C, F = args.sampling_num_frames, image_size[0], image_size[1], args.latent_channels, 8
     num_samples = [1]
@@ -48,10 +57,21 @@ def sampling_main(args, model_cls):
     device = model.device
     with torch.no_grad():
         for text, cnt in tqdm(data_iter):
-            # reload model on GPU
-            model.to(device)
-            print("rank:", rank, "start to process", text, cnt)
-            # TODO: broadcast image2video
+            if args.image2video:
+                text, image_path = text.split("@@")
+                assert os.path.exists(image_path), image_path
+                image = Image.open(image_path).convert("RGB")
+                image = transform(image).unsqueeze(0).to("cuda")
+                image = resize_for_rectangle_crop(image, image_size, reshape_mode="center").unsqueeze(0)
+                image = image * 2.0 - 1.0
+                image = image.unsqueeze(2).to(torch.bfloat16)
+                image = model.encode_first_stage(image, None)
+                image = image.permute(0, 2, 1, 3, 4).contiguous()
+                pad_shape = (image.shape[0], T - 1, C, H // F, W // F)
+                image = torch.concat([image, torch.zeros(pad_shape).to(image.device).to(image.dtype)], dim=1)
+            else:
+                image = None
+
             value_dict = {
                 "prompt": text,
                 "negative_prompt": "",
@@ -77,6 +97,11 @@ def sampling_main(args, model_cls):
             for k in c:
                 if not k == "crossattn":
                     c[k], uc[k] = map(lambda y: y[k][: math.prod(num_samples)].to("cuda"), (c, uc))
+
+            if args.image2video and image is not None:
+                c["concat"] = image
+                uc["concat"] = image
+
             for index in range(args.batch_size):
                 # reload model on GPU
                 model.to(device)

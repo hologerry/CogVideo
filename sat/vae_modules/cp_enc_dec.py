@@ -809,7 +809,7 @@ class ContextParallelEncoder3D(nn.Module):
             kernel_size=3,
         )
 
-    def forward(self, x):
+    def forward(self, x, **kwargs):
         # timestep embedding
         temb = None
 
@@ -950,7 +950,7 @@ class ContextParallelDecoder3D(nn.Module):
             kernel_size=3,
         )
 
-    def forward(self, z, clear_fake_cp_cache=True):
+    def forward(self, z, clear_fake_cp_cache=True, **kwargs):
         self.last_z_shape = z.shape
 
         # timestep embedding

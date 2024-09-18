@@ -6,7 +6,7 @@ Note:
 Must install the `torchao`, `torch`,`diffusers`,`accelerate` library FROM SOURCE to use the quantization feature.
 Only NVIDIA GPUs like H100 or higher are supported om FP-8 quantization.
 
-ALL quantization schemes must using with NVIDIA GPUs.
+ALL quantization schemes must use with NVIDIA GPUs.
 
 # Run the script:
 
@@ -78,20 +78,25 @@ def generate_video(
         transformer=transformer,
         vae=vae,
         torch_dtype=dtype,
-    ).to("cuda")
+    )
     pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
     # Using with compile will run faster. First time infer will cost ~30min to compile.
     # pipe.transformer.to(memory_format=torch.channels_last)
-    # for FP8 should remove  pipe.enable_model_cpu_offload()
+
+    # for FP8 should remove pipe.enable_model_cpu_offload()
     pipe.enable_model_cpu_offload()
+
+    # This is not for FP8 and INT8 and should remove this line
+    # pipe.enable_sequential_cpu_offload()
+    pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()
     video = pipe(
         prompt=prompt,
         num_videos_per_prompt=num_videos_per_prompt,
         num_inference_steps=num_inference_steps,
         num_frames=49,
-        use_dynamic_cfg=True,  ## This id used for DPM Sechduler, for DDIM scheduler, it should be False
+        use_dynamic_cfg=True,
         guidance_scale=guidance_scale,
         generator=torch.Generator(device="cuda").manual_seed(42),
     ).frames[0]
