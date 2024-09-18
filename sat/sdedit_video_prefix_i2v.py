@@ -109,7 +109,6 @@ def sampling_main(args, model_cls):
     device = model.device
     torch_dtype = model.dtype
 
-
     model = model.to(device)
 
     frames_tensor = torch.stack(frames_tensor, dim=0)
