@@ -3,7 +3,7 @@ args:
   model_parallel_size: 1
   experiment_name: lora_cogvidx5b_scalarflow_all_i2v
   mode: finetune
-  load: "/data/Dynamics/cogvideox-sat/5b/transformer"
+  load: /data/Dynamics/cogvideox-sat/5b/transformer
   no_load_rng: True
   train_iters: 10000 # Suggest more than 1000 For Lora and SFT For 500 is enough
   eval_iters: 1

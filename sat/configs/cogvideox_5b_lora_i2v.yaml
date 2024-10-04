@@ -25,7 +25,7 @@ model:
     params:
       time_embed_dim: 512
       elementwise_affine: True
-      num_frames: 73  # changed from 49 to 81, change to skip freqs_sin and freqs_cos in model load
+      num_frames: 49  # changed from 49 to 81, change to skip freqs_sin and freqs_cos in model load
       time_compressed_rate: 4
       latent_width: 90
       latent_height: 60
@@ -129,7 +129,7 @@ model:
   loss_fn_config:
     target: sgm.modules.diffusionmodules.loss.VideoDiffusionLoss
     params:
-      fixed_frames: 1
+      fixed_frames: 3
       offset_noise_level: 0
       sigma_sampler_config:
         target: sgm.modules.diffusionmodules.sigma_sampling.DiscreteSampling
