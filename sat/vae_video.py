@@ -68,14 +68,15 @@ def sampling_main(args, model_cls):
     torch_dtype = model.dtype
     prompt = ""
 
-    # data_root = "/data/Free/data/vcube_data_2023_codec"
-    data_root = "/data/Free/sparse_view_codec_outputs/out_bin/ds20220811_view6_clip10_seqview06_clip10_q63"
-    output_root = "/data/Free/sparse_view_codec_outputs/5b_0909"
-
-    sequence_name = "20220811162658"
     view_id = 6
     clip_id = 10
-    cur_folder_name = f"vae_{sequence_name}_view{view_id:02d}_clip{clip_id:02d}"
+
+    data_root = "/data/Free/sparse_view_codec_outputs"
+    bin_root = f"{data_root}/out_bin/ds20220811_view{view_id}_clip{clip_id}_seqview0{view_id}_clip{clip_id}_q56"
+    output_root = f"{data_root}/5b_0930"
+
+    sequence_name = "20220811162658"
+    cur_folder_name = f"vae55_{sequence_name}_view{view_id:02d}_clip{clip_id:02d}"
 
     start_frame_idx = 47
     total_frames = 49
@@ -83,7 +84,7 @@ def sampling_main(args, model_cls):
     vae_frame_size = (720, 480)
 
     frames = load_frames(
-        data_root,
+        bin_root,
         output_root,
         cur_folder_name,
         sequence_name,
