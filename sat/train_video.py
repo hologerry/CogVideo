@@ -81,7 +81,7 @@ def log_video(batch, model, args, only_log_video_latents=False):
 
         if only_log_video_latents:
             root = os.path.join(root, "latents")
-            filename = "{}_gs-{:06}".format("latents", args.iteration)
+            filename = f"latents_gs_{args.iteration:06}"
             path = os.path.join(root, filename)
             os.makedirs(os.path.split(path)[0], exist_ok=True)
             os.makedirs(path, exist_ok=True)
@@ -100,7 +100,7 @@ def log_video(batch, model, args, only_log_video_latents=False):
             fps = batch["fps"][0].cpu().item()
             if only_log_video_latents:
                 root = os.path.join(root, "latents")
-                filename = "{}_gs-{:06}".format("latents", args.iteration)
+                filename = f"latents_gs_{args.iteration:06}"
                 path = os.path.join(root, filename)
                 os.makedirs(os.path.split(path)[0], exist_ok=True)
                 os.makedirs(path, exist_ok=True)
