@@ -137,7 +137,7 @@ def save_frames(frames, output_frames_path):
         frame.save(f"{output_frames_path}/{i:03d}.png")
 
 
-def load_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False):
+def load_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False, denoise=True):
     frames = []
     frame_step = 1  # if ignore_fps else 30 // fps
     for i in trange(
@@ -149,7 +149,8 @@ def load_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8,
         frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_train{view_idx:02d}_last.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
-        frame[frame < 5] = 0
+        if denoise:
+            frame[frame < 5] = 0
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = TF.to_tensor(frame)
         frames.append(frame)
@@ -237,6 +238,25 @@ def load_zero123_frames(
 
         frames.append(frame)
     return frames
+
+
+def load_frames_simple(frames_dir, start_idx=0, num_frames=49):
+    frames = []
+    for i in trange(start_idx, start_idx + num_frames, desc="Loading frames"):
+        frame_path = os.path.join(frames_dir, f"{i:06d}.png")
+        assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
+        frame = cv2.imread(frame_path)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = TF.to_tensor(frame)
+        frames.append(frame)
+    return frames
+
+
+def load_image(image_path):
+    image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image = TF.to_tensor(image)
+    return image
 
 
 def load_label(label_folder, start_frame_idx=90, max_frame_idx=110, view_idx=0):

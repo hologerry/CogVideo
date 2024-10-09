@@ -1,0 +1,27 @@
+args:
+  latent_channels: 16
+  mode: inference
+  # load: "{your CogVideoX SAT folder}/transformer" # This is for Full model without lora adapter
+  # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
+  # load: /data/Dynamics/cogvideox-sat/5b/transformer
+  load: /data/Dynamics/cogvideox-sat/5b-i2v/transformer
+
+  batch_size: 1
+  input_type: txt
+  input_file: prompts/test_wonder.txt
+
+  sdedit_strength: 'all'  # 0.0 to 1.0, 1.0 means full sampling
+  sdedit_prompt_idx: 0
+  sdedit_official_i2v: True
+  sdedit_image_path: /data/Dynamics/wonder_samples/venice_resized.jpg
+  sdedit_frames_dir: /data/Dynamics/wonder_samples/render_video_0000_resized
+  sdedit_start_idx: 1
+  sdedit_num_frames: 49
+  sdedit_ignore_input_fps: True
+
+  sampling_num_frames: 13  # Must be 13, 11 or 9
+  sampling_fps: 8
+  # fp16: True # For CogVideoX-2B
+  bf16: True # For CogVideoX-5B
+  output_dir: /data/Dynamics/cogvideox_lora_outputs_wonder/render_video_0000_i2v
+  force_inference: True
