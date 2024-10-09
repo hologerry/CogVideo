@@ -45,7 +45,8 @@ def sampling_main(args, model_cls):
     prompt = text_prompts[prompt_idx]
 
     ### Reading the frames
-    offcial_i2v=  args.sdedit_official_i2v
+    offcial_i2v = args.sdedit_official_i2v
+    prefix_i2v = args.sdedit_prefix_i2v
     image_path = args.sdedit_image_path
     frames_dir = args.sdedit_frames_dir
     start_idx = args.sdedit_start_idx
@@ -149,6 +150,13 @@ def sampling_main(args, model_cls):
     # B, C, T, H, W -> B, T, C, H, W
     frames_z = frames_z.permute(0, 2, 1, 3, 4).contiguous()
     assert frames_z.shape == (1, T, C, H // F, W // F), f"Encoded frames_z shape: {frames_z.shape} not correct"
+    if prefix_i2v:
+        print("Using prefix image2video")
+        prefix_frames_z = image_z.detach().clone()
+        # remove the last frame
+        frames_z = torch.cat([prefix_frames_z, frames_z[:, : T - 1]], dim=1)
+    else:
+        prefix_frames_z = None
 
     for strength in all_strenths:
         cur_sdedit_strength = strength
@@ -163,6 +171,7 @@ def sampling_main(args, model_cls):
             shape=(T, C, H // F, W // F),
             frames_z=frames_z,
             sdedit_strength=cur_sdedit_strength,
+            prefix_clean_frames=prefix_frames_z,
         )
         # B, T, C, H, W -> B, C, T, H, W
         samples_z = samples_z.permute(0, 2, 1, 3, 4).contiguous()

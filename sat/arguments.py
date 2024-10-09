@@ -63,6 +63,7 @@ def add_sdedit_config_args(parser):
 
     group = parser.add_argument_group("sdedit", "SDEdit Configurations")
     group.add_argument("--sdedit-official-i2v", action="store_true")
+    group.add_argument("--sdedit-prefix-i2v", action="store_true")
     group.add_argument("--sdedit-strength", type=float, default=1.0)
     group.add_argument("--sdedit-strength-min", type=float, default=0.2)
     group.add_argument("--sdedit-strength-max", type=float, default=0.8)
