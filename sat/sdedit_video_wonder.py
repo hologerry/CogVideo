@@ -58,11 +58,12 @@ def sampling_main(args, model_cls):
         num_frames=num_frames,
     )
 
-    image_tensor = load_image(image_path)
-    # C, H, W -> 1, C, 1, H, W
-    image_tensor = image_tensor.unsqueeze(0).unsqueeze(2).to(torch_dtype)
-    image_tensor = image_tensor.contiguous().to(device)
-    image_tensor = image_tensor * 2.0 - 1.0
+    if offcial_i2v or prefix_i2v:
+        image_tensor = load_image(image_path)
+        # C, H, W -> 1, C, 1, H, W
+        image_tensor = image_tensor.unsqueeze(0).unsqueeze(2).to(torch_dtype)
+        image_tensor = image_tensor.contiguous().to(device)
+        image_tensor = image_tensor * 2.0 - 1.0
 
     out_fps = args.sampling_fps
 
@@ -98,12 +99,13 @@ def sampling_main(args, model_cls):
     num_samples = [1]
     force_uc_zero_embeddings = ["txt"]
 
-    image_z = model.encode_first_stage(image_tensor, None)
-    # B, C, T, H, W -> B, T, C, H, W
-    image_z = image_z.permute(0, 2, 1, 3, 4).contiguous()
-    pad_shape = (image_z.shape[0], T - 1, C, H // F, W // F)
-    pad_zeros = torch.zeros(pad_shape, dtype=image_z.dtype, device=image_z.device)
-    image = torch.concat([image_z, pad_zeros], dim=1)
+    if offcial_i2v or prefix_i2v:
+        image_z = model.encode_first_stage(image_tensor, None)
+        # B, C, T, H, W -> B, T, C, H, W
+        image_z = image_z.permute(0, 2, 1, 3, 4).contiguous()
+        pad_shape = (image_z.shape[0], T - 1, C, H // F, W // F)
+        pad_zeros = torch.zeros(pad_shape, dtype=image_z.dtype, device=image_z.device)
+        image = torch.concat([image_z, pad_zeros], dim=1)
 
     value_dict = {
         "prompt": prompt,
@@ -150,6 +152,7 @@ def sampling_main(args, model_cls):
     # B, C, T, H, W -> B, T, C, H, W
     frames_z = frames_z.permute(0, 2, 1, 3, 4).contiguous()
     assert frames_z.shape == (1, T, C, H // F, W // F), f"Encoded frames_z shape: {frames_z.shape} not correct"
+
     if prefix_i2v:
         print("Using prefix image2video")
         prefix_frames_z = image_z.detach().clone()
@@ -219,12 +222,6 @@ def sampling_main(args, model_cls):
         save_video(samples, output_video_path, fps=out_fps)
         print(f"Saved video to {output_video_path}")
         print(f"Saved frames to {output_frames_path}")
-
-    # save_path = os.path.join(
-    #     args.output_dir, str(cnt) + "_" + prompt.replace(" ", "_").replace("/", "")[:120], str(index)
-    # )
-    # if mpu.get_model_parallel_rank() == 0:
-    #     save_video_as_grid_and_mp4(samples, output_video_path, fps=args.sampling_fps)
 
 
 if __name__ == "__main__":
