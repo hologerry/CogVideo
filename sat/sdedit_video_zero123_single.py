@@ -52,7 +52,8 @@ def sampling_main(args, model_cls):
     ignore_input_fps = args.sdedit_ignore_input_fps
 
     # the frame 20 in scalarflow is the first scalarreal frame
-    frame_idx_to_label_idx_offset = 20
+    # frame_idx_to_label_idx_offset = 20
+    frame_idx_to_label_idx_offset = 0
     frame_batch_size = 2
 
     if args.sdedit_tgt_view_idx == "all":
@@ -66,12 +67,14 @@ def sampling_main(args, model_cls):
         if view_idx == tgt_view:
             continue
 
-        if args.sdedit_zero123_use_ckp2 and args.sdedit_zero123_use_ckp2_psnr:
-            zero123_output_dir = f"zero123_ckp2_finetune_38000_cam{view_idx}to{tgt_view}_psnr_for_cogvideox"
-        elif args.sdedit_zero123_use_ckp2:
-            zero123_output_dir = f"zero123_ckp2_finetune_38000_cam{view_idx}to{tgt_view}_for_cogvideox"
-        else:
-            zero123_output_dir = f"zero123_finetune_15000_cam{view_idx}to{tgt_view}_for_cogvideox"
+        # if args.sdedit_zero123_use_ckp2 and args.sdedit_zero123_use_ckp2_psnr:
+        #     zero123_output_dir = f"zero123_ckp2_finetune_38000_cam{view_idx}to{tgt_view}_psnr_for_cogvideox"
+        # elif args.sdedit_zero123_use_ckp2:
+        #     zero123_output_dir = f"zero123_ckp2_finetune_38000_cam{view_idx}to{tgt_view}_for_cogvideox"
+        # else:
+        #     zero123_output_dir = f"zero123_finetune_15000_cam{view_idx}to{tgt_view}_for_cogvideox"
+
+        zero123_output_dir = f"zero123_finetune_20000_cam{view_idx}to{tgt_view}_for_cogvideox"
 
         cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", "cogvideox_5b_all_pred_single")
 
@@ -86,13 +89,15 @@ def sampling_main(args, model_cls):
                 os.path.join(frames_dir, zero123_output_dir),
                 start_frame_idx=start_idx,
                 num_frames=num_frames,
-                max_frame_idx=119,
+                # max_frame_idx=119,
+                max_frame_idx=214,
                 ignore_fps=ignore_input_fps,
             )
             prompt = load_label(
                 labels_dir,
                 start_frame_idx=(frame_idx_to_label_idx_offset + start_idx) // 10 * 10,
-                max_frame_idx=110,
+                # max_frame_idx=110,
+                max_frame_idx=160,
                 view_idx=tgt_view,
             )
 

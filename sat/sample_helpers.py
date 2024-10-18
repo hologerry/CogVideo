@@ -262,7 +262,8 @@ def load_image(image_path):
 def load_label(label_folder, start_frame_idx=90, max_frame_idx=110, view_idx=0):
     # For label, we only have [10, 110, 10], num_frames must be 49
     frame_idx = min(start_frame_idx, max_frame_idx)
-    label_name = f"sim_000000_cam_{view_idx:02d}_start_{frame_idx:03d}_frames_049.txt"
+    # label_name = f"sim_000000_cam_{view_idx:02d}_start_{frame_idx:03d}_frames_049.txt"
+    label_name = f"seq_10_05_22_10_05_cam_{view_idx:02d}_start_{frame_idx:03d}_frames_049.txt"
     label_path = os.path.join(label_folder, label_name)
     assert os.path.exists(label_path), f"Label {label_path} does not exist."
     with open(label_path, "r") as fin:

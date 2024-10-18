@@ -4,7 +4,8 @@ args:
   # load: "{your CogVideoX SAT folder}/transformer" # This is for Full model without lora adapter
   # load: "{your lora folder} such as zRzRzRzRzRzRzR/lora-disney-08-20-13-28" # This is for Full model without lora adapter
   # load: "/data/Dynamics/cogvideox-sat/2b/transformer"
-  load: /data/Dynamics/cogvideox_lora_ckpts/lora_cogvidx5b_scalarflow_all-09-03-06-50/
+  # load: /data/Dynamics/cogvideox_lora_ckpts/lora_cogvidx5b_scalarflow_all-09-03-06-50/
+  load: /data/Dynamics/cogvideox_lora_ckpts/lora_cogvidx5b_realcapture_black-10-13-22-12/
 
   batch_size: 1
   input_type: txt
@@ -16,7 +17,8 @@ args:
   sdedit_strength_step: 0.02
   sdedit_prompt_idx: 0
   sdedit_is_zero123: True
-  sdedit_labels_dir: /data/Dynamics/ScalarFlow_cogvideox_dataset/labels
+  # sdedit_labels_dir: /data/Dynamics/ScalarFlow_cogvideox_dataset/labels
+  sdedit_labels_dir: /data/Dynamics/RealCaptureBlack_cogvideox_dataset/labels
   sdedit_prefix_start_idx: 55
   sdedit_prefix_num_frames: 9
   sdedit_frames_dir: /data/Dynamics/ScalarReal
@@ -34,5 +36,5 @@ args:
   sampling_fps: 8
   # fp16: True # For CogVideoX-2B
   bf16: True # For CogVideoX-5B
-  output_dir: /data/Dynamics/cogvideox_lora_outputs/5b_lora_all_sdedit_zero123/
+  output_dir: /data/Dynamics/cogvideox_lora_outputs_real_capture/5b_lora_all_sdedit_zero123/
   force_inference: True
