@@ -44,6 +44,7 @@ def sampling_main(args, model_cls):
     num_frames = args.sdedit_num_frames
     view_idx = args.sdedit_view_idx
     ignore_input_fps = args.sdedit_ignore_input_fps
+    frame_step = 2
 
     if args.sdedit_prefix_gt or view_idx == 0:
         # the prefix frames are ground truth
@@ -62,6 +63,7 @@ def sampling_main(args, model_cls):
         num_frames=prefix_num_frames,
         view_idx=view_idx,
         ignore_fps=ignore_input_fps,
+        frame_step=frame_step,
     )
 
     frame_idx_to_label_idx_offset = 20

@@ -6,6 +6,7 @@ from typing import List, Union
 import cv2
 import imageio
 import numpy as np
+from regex import F
 import torch
 import torchvision.transforms as TT
 import torchvision.transforms.functional as TF
@@ -137,39 +138,56 @@ def save_frames(frames, output_frames_path):
         frame.save(f"{output_frames_path}/{i:03d}.png")
 
 
-def load_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False, denoise=True):
+def load_frames(
+    frame_dir,
+    start_frame_idx=90,
+    num_frames=49,
+    view_idx=0,
+    frame_step=1,
+    fps=8,
+    ignore_fps=False,
+    denoise=True,
+):
     frames = []
-    frame_step = 1  # if ignore_fps else 30 // fps
     for i in trange(
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
         frame_step,
         desc=f"Loading frames in view {view_idx}",
     ):
-        frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_train{view_idx:02d}_last.png")
+        # frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_train{view_idx:02d}_last.png")
+        frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_camera{view_idx:02d}_0000.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
-        if denoise:
-            frame[frame < 5] = 0
+        # if denoise:
+        #     frame[frame < 5] = 0
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = TF.to_tensor(frame)
         frames.append(frame)
     return frames
 
 
-def load_gt_prefix_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False):
+def load_gt_prefix_frames(
+    frame_dir,
+    start_frame_idx=90,
+    num_frames=49,
+    view_idx=0,
+    frame_step=1,
+    fps=8,
+    ignore_fps=False,
+):
     frames = []
-    frame_step = 1  # if ignore_fps else 30 // fps
     for i in trange(
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
         frame_step,
         desc=f"Loading frames in view {view_idx}",
     ):
-        frame_path = os.path.join(frame_dir, f"train{view_idx:02d}_for_cogvideox", f"{i:03d}.png")
+        # frame_path = os.path.join(frame_dir, f"train{view_idx:02d}_for_cogvideox", f"{i:03d}.png")
+        frame_path = os.path.join(frame_dir, f"camera{view_idx:02d}_for_cogvideox", f"{i:03d}.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
-        frame[frame < 5] = 0
+        # frame[frame < 5] = 0
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = TF.to_tensor(frame)
 
@@ -177,9 +195,16 @@ def load_gt_prefix_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx
     return frames
 
 
-def load_fake_prefix_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False):
+def load_fake_prefix_frames(
+    frame_dir,
+    start_frame_idx=90,
+    num_frames=49,
+    view_idx=0,
+    frame_step=1,
+    fps=8,
+    ignore_fps=False,
+):
     frames = []
-    frame_step = 1  # if ignore_fps else 30 // fps
     for i in trange(
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
@@ -196,9 +221,16 @@ def load_fake_prefix_frames(frame_dir, start_frame_idx=90, num_frames=49, view_i
     return frames
 
 
-def load_spherical_frames(frame_dir, start_frame_idx=90, num_frames=49, view_idx=0, fps=8, ignore_fps=False):
+def load_spherical_frames(
+    frame_dir,
+    start_frame_idx=90,
+    num_frames=49,
+    view_idx=0,
+    frame_step=1,
+    fps=8,
+    ignore_fps=False,
+):
     frames = []
-    frame_step = 1  # if ignore_fps else 30 // fps
     for i in trange(
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
@@ -220,12 +252,13 @@ def load_zero123_frames(
     start_frame_idx=90,
     num_frames=49,
     max_frame_idx=119,
+    frame_step=1,
     fps=8,
     ignore_fps=False,
     ahack=False,
 ):
     frames = []
-    frame_step = 1  # if ignore_fps else 30 // fps
+    # if ignore_fps else 30 // fps
     for i in trange(start_frame_idx, start_frame_idx + num_frames * frame_step, frame_step, desc="Loading frames"):
         fi = min(i, max_frame_idx)
         frame_path = os.path.join(frame_dir, f"frame_{fi:06d}.png")
@@ -263,7 +296,8 @@ def load_label(label_folder, start_frame_idx=90, max_frame_idx=110, view_idx=0):
     # For label, we only have [10, 110, 10], num_frames must be 49
     frame_idx = min(start_frame_idx, max_frame_idx)
     # label_name = f"sim_000000_cam_{view_idx:02d}_start_{frame_idx:03d}_frames_049.txt"
-    label_name = f"seq_10_05_22_10_05_cam_{view_idx:02d}_start_{frame_idx:03d}_frames_049.txt"
+    # label_name = f"seq_10_05_22_10_05_cam_{view_idx:02d}_start_{frame_idx:03d}_frames_049.txt"
+    label_name = f"seq_10_22_01_28_03_cam_{view_idx:02d}_start_{frame_idx:03d}_frames_049.txt"
     label_path = os.path.join(label_folder, label_name)
     assert os.path.exists(label_path), f"Label {label_path} does not exist."
     with open(label_path, "r") as fin:
