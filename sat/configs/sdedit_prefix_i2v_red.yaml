@@ -16,7 +16,7 @@ args:
   sdedit_labels_dir: /data/Dynamics/RealCaptureBlackBlueCloudRedBallSetData_cogvideox_dataset/labels
   sdedit_prefix_frames_dir: /data/Dynamics/RealCaptureBlackBlueCloudRedBallOneData
   # sdedit_prefix_frames_dir: /data/Dynamics/cogvideox_lora_outputs/5b_lora_all_sdedit_gt_prefix_fullencdec/prefix_view0_start090_frames49_strength0d75_frames
-  sdedit_frames_dir: /data/Dynamics/gaussian_fluid_dynamics_log/gaussian_pbd_fluid_gs_real_capture_simrec_simple/captureblackbluecloudredballone_camhackprune_start15dur90fut60step2_tuneparam_emitvisratio1_iter1000_alpm6/training_render_for_generative_cogvideox/
+  sdedit_frames_dir: /data/Dynamics/gaussian_fluid_dynamics_log/gaussian_pbd_fluid_gs_real_capture_simrec_simple/captureblackbluecloudredballone_camhackprune_start15dur90fut65step2_tuneparam_emitvisratio1_iter1000_alpm6/training_render_for_generative_cogvideox/
   sdedit_prefix_start_idx: 177  # 15 + 90*2 - 9*2
   sdedit_prefix_num_frames: 9
   sdedit_start_idx: 90

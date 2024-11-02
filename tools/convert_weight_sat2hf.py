@@ -26,18 +26,11 @@ import torch
 from diffusers import (
     AutoencoderKLCogVideoX,
     CogVideoXDDIMScheduler,
-    CogVideoXPipeline,
-    CogVideoXTransformer3DModel,
-)
-from transformers import T5EncoderModel, T5Tokenizer
-
-from diffusers import (
-    AutoencoderKLCogVideoX,
-    CogVideoXDDIMScheduler,
     CogVideoXImageToVideoPipeline,
     CogVideoXPipeline,
     CogVideoXTransformer3DModel,
 )
+from transformers import T5EncoderModel, T5Tokenizer
 
 
 def reassign_query_key_value_inplace(key: str, state_dict: Dict[str, Any]):
@@ -217,7 +210,8 @@ def convert_vae(ckpt_path: str, scaling_factor: float, dtype: torch.dtype):
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--transformer_ckpt_path", type=str, default=None, help="Path to original transformer checkpoint")
+        "--transformer_ckpt_path", type=str, default=None, help="Path to original transformer checkpoint"
+    )
     parser.add_argument("--vae_ckpt_path", type=str, default=None, help="Path to original vae checkpoint")
     parser.add_argument("--output_path", type=str, required=True, help="Path where converted model should be saved")
     parser.add_argument("--fp16", action="store_true", default=False, help="Whether to save the model weights in fp16")

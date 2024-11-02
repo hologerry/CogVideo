@@ -14,16 +14,19 @@
 # limitations under the License.
 
 
-import math 
-import random 
-import time
-from diffusers.utils import export_to_video
-from diffusers.image_processor import VaeImageProcessor
-from datetime import datetime, timedelta
-from diffusers import CogVideoXPipeline, CogVideoXDDIMScheduler, CogVideoXDPMScheduler
-import os
-import torch
 import argparse
+import math
+import os
+import random
+import time
+
+from datetime import datetime, timedelta
+
+import torch
+
+from diffusers import CogVideoXDDIMScheduler, CogVideoXDPMScheduler, CogVideoXPipeline
+from diffusers.image_processor import VaeImageProcessor
+from diffusers.utils import export_to_video
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -69,14 +72,15 @@ def get_args():
 if __name__ == "__main__":
     args = get_args()
     pipe = CogVideoXPipeline.from_pretrained(args.pretrained_model_name_or_path, torch_dtype=torch.bfloat16).to(device)
-    pipe.load_lora_weights(args.lora_weights_path,  weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1")
-    pipe.fuse_lora(lora_scale=1/128)
-
+    pipe.load_lora_weights(
+        args.lora_weights_path, weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1"
+    )
+    pipe.fuse_lora(lora_scale=1 / 128)
 
     pipe.scheduler = CogVideoXDPMScheduler.from_config(pipe.scheduler.config, timestep_spacing="trailing")
 
     os.makedirs(args.output_dir, exist_ok=True)
-    prompt="""In the heart of a bustling city, a young woman with long, flowing brown hair and a radiant smile stands out. She's donned in a cozy white beanie adorned with playful animal ears, adding a touch of whimsy to her appearance. Her eyes sparkle with joy as she looks directly into the camera, her expression inviting and warm. The background is a blur of activity, with indistinct figures moving about, suggesting a lively public space. The lighting is soft and diffused, casting a gentle glow on her face and highlighting her features. The overall mood is cheerful and vibrant, capturing a moment of happiness in the midst of urban life.
+    prompt = """In the heart of a bustling city, a young woman with long, flowing brown hair and a radiant smile stands out. She's donned in a cozy white beanie adorned with playful animal ears, adding a touch of whimsy to her appearance. Her eyes sparkle with joy as she looks directly into the camera, her expression inviting and warm. The background is a blur of activity, with indistinct figures moving about, suggesting a lively public space. The lighting is soft and diffused, casting a gentle glow on her face and highlighting her features. The overall mood is cheerful and vibrant, capturing a moment of happiness in the midst of urban life.
     """
     latents = pipe(
         prompt=prompt,
@@ -102,6 +106,6 @@ if __name__ == "__main__":
     video_path = f"{args.output_dir}/{timestamp}.mp4"
     os.makedirs(os.path.dirname(video_path), exist_ok=True)
     tensor = batch_video_frames[0]
-    fps=math.ceil((len(batch_video_frames[0]) - 1) / 6)
+    fps = math.ceil((len(batch_video_frames[0]) - 1) / 6)
 
     export_to_video(tensor, video_path, fps=fps)
