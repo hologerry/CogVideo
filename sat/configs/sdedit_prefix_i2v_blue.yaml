@@ -21,7 +21,7 @@ args:
   sdedit_prefix_num_frames: 9
   sdedit_start_idx: 90
   sdedit_num_frames: 65
-  sdedit_view_idx: 0
+  sdedit_view_idx: 4
   # sdedit_view_start_idx: 0
   # sdedit_view_end_idx: 10
   sdedit_ignore_input_fps: True

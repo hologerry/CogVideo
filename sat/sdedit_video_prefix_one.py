@@ -222,7 +222,7 @@ def sampling_main(args, model_cls):
     print(f"loop_num: {loop_num}, remaining_frames: {remaining_frames}")
 
     # drop the last batch frame, as it is the same as the first frame in the next batch
-    # this is important, as we keep the context cache in vae, if we decode, the context cache missmatch
+    # this is important, as we keep the context cache in vae, if we decode, the context cache mismatch
 
     for i in trange(loop_num, desc="Decoding"):
         start_frame = frame_batch_size * i + (0 if i == 0 else remaining_frames)
