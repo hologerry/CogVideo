@@ -78,9 +78,9 @@ def sampling_main(args, model_cls):
 
     prefix_output_dir = zero123_output_dir.replace("for_cogvideox", "cogvideox_5b_all_pred_prefix_two")#.replace("22000", "20000")
     if "blue" in args.output_dir:
-        prefix_basename = f"output_sfi167_nf65_strength0d3_frames"
+        prefix_basename = f"output_sfi167_nf65_strength0d5_frames"
     elif "red" in args.output_dir:
-        prefix_basename = f"output_sfi145_nf65_strength0d3_frames"
+        prefix_basename = f"output_sfi145_nf65_strength0d5_frames"
     prefix_output_full_dir = os.path.join(args.output_dir, prefix_output_dir, prefix_basename)
 
     cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", f"cogvideox_5b_all_pred_prefix_three")#.replace("22000", "20000")
@@ -143,7 +143,7 @@ def sampling_main(args, model_cls):
     #         raise ValueError(f"Invalid sdedit_strength: {sdedit_strength}")
     # else:
     #     all_strenths = [sdedit_strength]
-    all_strenths = [0.3]
+    all_strenths = [0.5]
 
     image_size = [480, 720]
 

@@ -145,7 +145,7 @@ def sampling_main(args, model_cls):
     #         raise ValueError(f"Invalid sdedit_strength: {sdedit_strength}")
     # else:
     #     all_strenths = [sdedit_strength]
-    all_strenths = [0.3]
+    all_strenths = [0.5]
 
     image_size = [480, 720]
 
