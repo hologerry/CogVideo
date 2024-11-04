@@ -8,7 +8,6 @@ import torch
 import torch.distributed
 
 from omegaconf import OmegaConf
-
 from sat import mpu
 from sat.arguments import (
     add_data_args,

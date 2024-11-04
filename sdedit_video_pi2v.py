@@ -5,6 +5,10 @@ import os
 import lovely_tensors as lt
 import torch
 
+from sat.model.base_model import get_model
+from sat.training.model_io import load_checkpoint
+from tqdm import trange
+
 from arguments import get_args
 from diffusion_video import SATVideoDiffusionEngine
 from sample_helpers import (
@@ -19,10 +23,6 @@ from sample_helpers import (
     save_frames,
     save_video,
 )
-from tqdm import trange
-
-from sat.model.base_model import get_model
-from sat.training.model_io import load_checkpoint
 
 
 @torch.no_grad()

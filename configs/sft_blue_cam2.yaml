@@ -1,7 +1,7 @@
 args:
   checkpoint_activations: True # using gradient checkpointing
   model_parallel_size: 1
-  experiment_name: lora_cogvidx5b_blackbluecloudredball204_all
+  experiment_name: lora_cogvidx5b_blackbluecloud204_cam2
   mode: finetune
   load: /data/Dynamics/cogvideox-sat/5b/transformer
   no_load_rng: True
@@ -13,8 +13,8 @@ args:
   summary_dir: /data/Dynamics/cogvideox_lora_runs
   save_interval: 1000
   log_interval: 100
-  train_data: [ "/data/Dynamics/RealCaptureBlackBlueCloudRedBallSetData_cogvideox_dataset" ] # Train data path
-  valid_data: [ "/data/Dynamics/RealCaptureBlackBlueCloudRedBallSetData_cogvideox_dataset_sub_235" ] # Validation data path, can be the same as train_data(not recommended)
+  train_data: [ "/data/Dynamics/RealCaptureBlackBlueCloudSetData_cogvideox_dataset" ] # Train data path
+  valid_data: [ "/data/Dynamics/RealCaptureBlackBlueCloudSetData_cogvideox_dataset_sub_235" ] # Validation data path, can be the same as train_data(not recommended)
   split: 1,0,0
   num_workers: 8
   force_train: True
@@ -27,7 +27,7 @@ data:
     fps: 8
     max_num_frames: 49
     skip_frms_num: 0
-    cam_str: all
+    cam_str: cam_02
     paths_post: "204"
 
 deepspeed:

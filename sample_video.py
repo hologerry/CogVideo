@@ -6,10 +6,15 @@ import numpy as np
 import torch
 import torchvision.transforms as TT
 
-from arguments import get_args
-from diffusion_video import SATVideoDiffusionEngine
 from einops import rearrange
 from PIL import Image
+from sat import mpu
+from sat.model.base_model import get_model
+from sat.training.model_io import load_checkpoint
+from tqdm import tqdm
+
+from arguments import get_args
+from diffusion_video import SATVideoDiffusionEngine
 from sample_helpers import (
     get_batch,
     get_unique_embedder_keys_from_conditioner,
@@ -18,11 +23,6 @@ from sample_helpers import (
     resize_for_rectangle_crop,
     save_video_as_grid_and_mp4,
 )
-from tqdm import tqdm
-
-from sat import mpu
-from sat.model.base_model import get_model
-from sat.training.model_io import load_checkpoint
 
 
 def sampling_main(args, model_cls):

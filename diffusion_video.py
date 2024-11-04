@@ -7,8 +7,12 @@ from typing import Any, Dict, List, Tuple, Union
 import torch
 import torch.nn.functional as F
 
-from dit_video_concat import DiffusionTransformer
 from omegaconf import ListConfig
+from sat import mpu
+from sat.helpers import print_rank0
+from torch import nn
+
+from dit_video_concat import DiffusionTransformer
 from sgm.modules import UNCONDITIONAL_CONFIG, GeneralConditioner
 from sgm.modules.autoencoding.temporal_ae import VideoDecoder
 from sgm.modules.diffusionmodules.denoiser import DiscreteDenoiser
@@ -22,11 +26,7 @@ from sgm.util import (
     instantiate_from_config,
     log_txt_as_img,
 )
-from torch import nn
 from vae_modules.autoencoder import VideoAutoencoderInferenceWrapper
-
-from sat import mpu
-from sat.helpers import print_rank0
 
 
 class SATVideoDiffusionEngine(nn.Module):

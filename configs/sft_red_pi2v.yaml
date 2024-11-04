@@ -1,7 +1,7 @@
 args:
-  checkpoint_activations: True # using gradient checkpointing
+  checkpoint_activations: True ## using gradient checkpointing
   model_parallel_size: 1
-  experiment_name: lora_cogvidx5b_blackbluecloudredball204_all
+  experiment_name: lora_cogvidx5b_blackbluecloudredball204_all_pi2v
   mode: finetune
   load: /data/Dynamics/cogvideox-sat/5b/transformer
   no_load_rng: True
@@ -47,9 +47,9 @@ deepspeed:
     load_from_fp32_weights: false
   zero_allow_untested_optimizer: true
   bf16:
-    enabled: True  # For CogVideoX-2B Turn to False and For CogVideoX-5B Turn to True
+      enabled: True  # For CogVideoX-2B Turn to False and For CogVideoX-5B Turn to True
   fp16:
-    enabled: False  # For CogVideoX-2B Turn to True and For CogVideoX-5B Turn to False
+      enabled: False  # For CogVideoX-2B Turn to True and For CogVideoX-5B Turn to False
   loss_scale: 0
   loss_scale_window: 400
   hysteresis: 2
@@ -58,7 +58,7 @@ deepspeed:
   optimizer:
     type: sat.ops.FusedEmaAdam
     params:
-      lr: 0.00001 # Between 1E-3 and 5E-4 For Lora and 1E-5 For SFT
+      lr: 0.001 # Between 1E-3 and 5E-4 For Lora and 1E-5 For SFT
       betas: [ 0.9, 0.95 ]
       eps: 1e-8
       weight_decay: 1e-4

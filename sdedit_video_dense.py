@@ -4,14 +4,13 @@ import os
 
 import lovely_tensors as lt
 import torch
+
+from sat.model.base_model import get_model
+from sat.training.model_io import load_checkpoint
 from tqdm import trange
 
 from arguments import get_args
 from diffusion_video import SATVideoDiffusionEngine
-
-from sat.model.base_model import get_model
-from sat.training.model_io import load_checkpoint
-
 from sample_helpers import (
     check_inputs,
     get_batch,
@@ -82,7 +81,9 @@ def sampling_main(args, model_cls):
         input_video_path = f"{args.output_dir}/input_sfi{start_idx}_nf{num_frames}_v{view_idx:03d}_fps{out_fps}.mp4"
         save_video(frames_tensor, input_video_path, fps=out_fps)
 
-        input_frames_path = f"{args.output_dir}/input_sfi{start_idx}_nf{num_frames}_v{view_idx:03d}_fps{out_fps}_frames"
+        input_frames_path = (
+            f"{args.output_dir}/input_sfi{start_idx}_nf{num_frames}_v{view_idx:03d}_fps{out_fps}_frames"
+        )
         os.makedirs(input_frames_path, exist_ok=True)
         save_frames(frames_tensor.squeeze(0), input_frames_path)
 

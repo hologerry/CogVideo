@@ -2,16 +2,14 @@ import argparse
 import math
 import os
 
-
 import lovely_tensors as lt
 import torch
-
-from arguments import get_args
-from diffusion_video import SATVideoDiffusionEngine
 
 from sat.model.base_model import get_model
 from sat.training.model_io import load_checkpoint
 
+from arguments import get_args
+from diffusion_video import SATVideoDiffusionEngine
 from sample_helpers import (
     check_inputs,
     get_batch,

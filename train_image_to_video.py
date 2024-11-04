@@ -8,14 +8,14 @@ import numpy as np
 import torch
 import torch.distributed
 
-from arguments import get_args
-from diffusion_video import SATVideoDiffusionEngine
 from einops import rearrange
 from omegaconf import OmegaConf
-from sgm.util import get_obj_from_str, isheatmap
-
 from sat import mpu
 from sat.training.deepspeed_training import training_main
+
+from arguments import get_args
+from diffusion_video import SATVideoDiffusionEngine
+from sgm.util import get_obj_from_str, isheatmap
 
 
 try:
@@ -75,7 +75,7 @@ def log_video(batch, model, args, only_log_video_latents=False):
 
         if only_log_video_latents:
             root = os.path.join(root, "latents")
-            filename = "{}_gs-{:06}".format("latents", args.iteration)
+            filename = f"latents_gs_{args.iteration:06}"
             path = os.path.join(root, filename)
             os.makedirs(os.path.split(path)[0], exist_ok=True)
             os.makedirs(path, exist_ok=True)
@@ -94,7 +94,7 @@ def log_video(batch, model, args, only_log_video_latents=False):
             fps = batch["fps"][0].cpu().item()
             if only_log_video_latents:
                 root = os.path.join(root, "latents")
-                filename = "{}_gs-{:06}".format("latents", args.iteration)
+                filename = f"latents_gs_{args.iteration:06}"
                 path = os.path.join(root, filename)
                 os.makedirs(os.path.split(path)[0], exist_ok=True)
                 os.makedirs(path, exist_ok=True)
@@ -102,7 +102,7 @@ def log_video(batch, model, args, only_log_video_latents=False):
             else:
                 for k in videos:
                     samples = (videos[k] + 1.0) / 2.0
-                    filename = "{}_gs-{:06}".format(k, args.iteration)
+                    filename = f"{k}_gs_{args.iteration:06}"
 
                     path = os.path.join(root, filename)
                     os.makedirs(os.path.split(path)[0], exist_ok=True)

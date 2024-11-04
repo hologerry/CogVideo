@@ -1,7 +1,7 @@
 args:
-  checkpoint_activations: True # using gradient checkpointing
+  checkpoint_activations: True ## using gradient checkpointing
   model_parallel_size: 1
-  experiment_name: lora_cogvidx5b_blackbluecloudredball204_all
+  experiment_name: lora_cogvidx5b_blackbluecloud204_cam4_pi2v
   mode: finetune
   load: /data/Dynamics/cogvideox-sat/5b/transformer
   no_load_rng: True
@@ -13,8 +13,8 @@ args:
   summary_dir: /data/Dynamics/cogvideox_lora_runs
   save_interval: 1000
   log_interval: 100
-  train_data: [ "/data/Dynamics/RealCaptureBlackBlueCloudRedBallSetData_cogvideox_dataset" ] # Train data path
-  valid_data: [ "/data/Dynamics/RealCaptureBlackBlueCloudRedBallSetData_cogvideox_dataset_sub_235" ] # Validation data path, can be the same as train_data(not recommended)
+  train_data: [ "/data/Dynamics/RealCaptureBlackBlueCloudSetData_cogvideox_dataset" ] # Train data path
+  valid_data: [ "/data/Dynamics/RealCaptureBlackBlueCloudSetData_cogvideox_dataset_sub_235" ] # Validation data path, can be the same as train_data(not recommended)
   split: 1,0,0
   num_workers: 8
   force_train: True
@@ -27,7 +27,7 @@ data:
     fps: 8
     max_num_frames: 49
     skip_frms_num: 0
-    cam_str: all
+    cam_str: cam_04
     paths_post: "204"
 
 deepspeed:
@@ -47,9 +47,9 @@ deepspeed:
     load_from_fp32_weights: false
   zero_allow_untested_optimizer: true
   bf16:
-    enabled: True  # For CogVideoX-2B Turn to False and For CogVideoX-5B Turn to True
+      enabled: True  # For CogVideoX-2B Turn to False and For CogVideoX-5B Turn to True
   fp16:
-    enabled: False  # For CogVideoX-2B Turn to True and For CogVideoX-5B Turn to False
+      enabled: False  # For CogVideoX-2B Turn to True and For CogVideoX-5B Turn to False
   loss_scale: 0
   loss_scale_window: 400
   hysteresis: 2
@@ -58,7 +58,7 @@ deepspeed:
   optimizer:
     type: sat.ops.FusedEmaAdam
     params:
-      lr: 0.00001 # Between 1E-3 and 5E-4 For Lora and 1E-5 For SFT
+      lr: 0.001 # Between 1E-3 and 5E-4 For Lora and 1E-5 For SFT
       betas: [ 0.9, 0.95 ]
       eps: 1e-8
       weight_decay: 1e-4

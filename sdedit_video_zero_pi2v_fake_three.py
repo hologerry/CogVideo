@@ -61,11 +61,10 @@ def sampling_main(args, model_cls):
     zero123step = args.sdedit_zero123_finetune_step
 
     # the frame 20 in scalarflow is the first scalarreal frame
-    frame_idx_to_label_idx_offset = 0 #20
+    frame_idx_to_label_idx_offset = 0  # 20
     frame_batch_size = 2
     label_step = 5
     prefix_num_latent_frames = prefix_num_frames // 3
-
 
     # if args.sdedit_zero123_use_ckp2 and args.sdedit_zero123_use_ckp2_psnr:
     #     zero123_output_dir = f"zero123_ckp2_finetune_38000_cam{view_idx}to{tgt_view_idx}_psnr_for_cogvideox"
@@ -76,14 +75,18 @@ def sampling_main(args, model_cls):
 
     zero123_output_dir = f"zero123_finetune_{zero123step}_cam{view_idx}to{tgt_view_idx}_for_cogvideox"
 
-    prefix_output_dir = zero123_output_dir.replace("for_cogvideox", "cogvideox_5b_all_pred_prefix_two")#.replace("22000", "20000")
+    prefix_output_dir = zero123_output_dir.replace(
+        "for_cogvideox", "cogvideox_5b_all_pred_prefix_two"
+    )  # .replace("22000", "20000")
     if "blue" in args.output_dir:
         prefix_basename = f"output_sfi167_nf65_strength0d5_frames"
     elif "red" in args.output_dir:
         prefix_basename = f"output_sfi145_nf65_strength0d5_frames"
     prefix_output_full_dir = os.path.join(args.output_dir, prefix_output_dir, prefix_basename)
 
-    cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", f"cogvideox_5b_all_pred_prefix_three")#.replace("22000", "20000")
+    cogvx_output_dir = zero123_output_dir.replace(
+        "for_cogvideox", f"cogvideox_5b_all_pred_prefix_three"
+    )  # .replace("22000", "20000")
     cogvx_output_full_dir = os.path.join(args.output_dir, cogvx_output_dir)
     os.makedirs(cogvx_output_full_dir, exist_ok=True)
 
@@ -102,7 +105,7 @@ def sampling_main(args, model_cls):
         os.path.join(frames_dir, zero123_output_dir),
         start_frame_idx=start_idx,
         num_frames=cur_num_frames,
-        max_frame_idx=480, #119,
+        max_frame_idx=480,  # 119,
         ignore_fps=ignore_input_fps,
         frame_step=frame_step,
     )
@@ -111,7 +114,7 @@ def sampling_main(args, model_cls):
     prompt = load_label(
         labels_dir,
         start_frame_idx=(frame_idx_to_label_idx_offset + label_start_idx) // label_step * label_step,
-        max_frame_idx=250,  #110,
+        max_frame_idx=250,  # 110,
         view_idx=tgt_view_idx,
         sequence_name=sequence_name,
     )

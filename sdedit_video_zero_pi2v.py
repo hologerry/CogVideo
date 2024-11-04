@@ -8,21 +8,22 @@ import lovely_tensors as lt
 import numpy as np
 import torch
 
+from sat.model.base_model import get_model
+from sat.training.model_io import load_checkpoint
+from tqdm import trange
+
 from arguments import get_args
 from diffusion_video import SATVideoDiffusionEngine
 from sample_helpers import (
     check_inputs,
     get_batch,
     get_unique_embedder_keys_from_conditioner,
+    load_fake_prefix_frames,
     load_label,
     load_zero123_frames,
     save_frames,
     save_video,
 )
-from tqdm import trange
-
-from sat.model.base_model import get_model
-from sat.training.model_io import load_checkpoint
 
 
 @torch.no_grad()
@@ -42,57 +43,67 @@ def sampling_main(args, model_cls):
     device = model.device
     torch_dtype = model.dtype
 
-    ### Reading the frames
+    prefix_frames_dir = args.sdedit_prefix_frames_dir
+    prefix_start_idx = args.sdedit_prefix_start_idx
+    prefix_num_frames = args.sdedit_prefix_num_frames
 
     labels_dir = args.sdedit_labels_dir
 
     frames_dir = args.sdedit_frames_dir
+    start_idx = args.sdedit_start_idx
     num_frames = args.sdedit_num_frames
-    frame_step = args.sdedit_frame_step
     view_idx = args.sdedit_view_idx
-    tgt_view_idx = args.sdedit_tgt_view_idx
     ignore_input_fps = args.sdedit_ignore_input_fps
-    zero123step = args.sdedit_zero123_finetune_step
 
     # the frame 20 in scalarflow is the first scalarreal frame
-    # frame_idx_to_label_idx_offset = 20
-    frame_idx_to_label_idx_offset = 0
+    frame_idx_to_label_idx_offset = 0  # 20
     frame_batch_size = 2
-    label_step = 5
+    prefix_num_latent_frames = prefix_num_frames // 3
 
-    start_idx = args.sdedit_start_idx
+    tgt_view_idx = args.sdedit_tgt_view_idx
 
-    # if args.sdedit_zero123_use_ckp2 and args.sdedit_zero123_use_ckp2_psnr:
-    #     zero123_output_dir = f"zero123_ckp2_finetune_38000_cam{view_idx}to{tgt_view}_psnr_for_cogvideox"
-    # elif args.sdedit_zero123_use_ckp2:
-    #     zero123_output_dir = f"zero123_ckp2_finetune_38000_cam{view_idx}to{tgt_view}_for_cogvideox"
-    # else:
-    #     zero123_output_dir = f"zero123_finetune_15000_cam{view_idx}to{tgt_view}_for_cogvideox"
+    if args.sdedit_zero123_use_ckp2 and args.sdedit_zero123_use_ckp2_psnr:
+        zero123_output_dir = f"zero123_ckp2_finetune_38000_cam{view_idx}to{tgt_view_idx}_psnr_for_cogvideox"
+    elif args.sdedit_zero123_use_ckp2:
+        zero123_output_dir = f"zero123_ckp2_finetune_38000_cam{view_idx}to{tgt_view_idx}_for_cogvideox"
+    else:
+        zero123_output_dir = f"zero123_finetune_15000_cam{view_idx}to{tgt_view_idx}_for_cogvideox"
 
-    zero123_output_dir = f"zero123_finetune_{zero123step}_cam{view_idx}to{tgt_view_idx}_for_cogvideox"
-    print(f"zero123_output_dir: {zero123_output_dir}")
+    prefix_output_dir = zero123_output_dir.replace("for_cogvideox", "cogvideox_5b_all_pred_single")
+    prefix_output_full_dir = os.path.join(
+        args.output_dir, prefix_output_dir, f"output_sfi000_nf65_strength0d26_frames"
+    )
 
-    cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", "cogvideox_5b_all_pred_single")
-
+    cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", f"cogvideox_5b_all_pred_prefix_one")
     cogvx_output_full_dir = os.path.join(args.output_dir, cogvx_output_dir)
     os.makedirs(cogvx_output_full_dir, exist_ok=True)
 
     model.to(device)
 
-    frames_tensor = load_zero123_frames(
+    prefix_frames_tensor = load_fake_prefix_frames(
+        prefix_output_full_dir,
+        start_frame_idx=prefix_start_idx,
+        num_frames=prefix_num_frames,
+        view_idx=view_idx,
+        ignore_fps=ignore_input_fps,
+    )
+    cur_num_frames = num_frames - prefix_num_frames
+
+    cur_frames_tensor = load_zero123_frames(
         os.path.join(frames_dir, zero123_output_dir),
         start_frame_idx=start_idx,
-        num_frames=num_frames,
-        # max_frame_idx=119,
-        max_frame_idx=400,
+        num_frames=cur_num_frames,
+        max_frame_idx=119,
         ignore_fps=ignore_input_fps,
-        frame_step=frame_step,
     )
+    frames_tensor = prefix_frames_tensor + cur_frames_tensor
+
+    label_start_idx = prefix_start_idx
+
     prompt = load_label(
         labels_dir,
-        start_frame_idx=(frame_idx_to_label_idx_offset + start_idx) // label_step * label_step,
-        # max_frame_idx=110,
-        max_frame_idx=250,
+        start_frame_idx=(frame_idx_to_label_idx_offset + label_start_idx) // 10 * 10,
+        max_frame_idx=110,
         view_idx=tgt_view_idx,
     )
 
@@ -123,7 +134,7 @@ def sampling_main(args, model_cls):
     #         raise ValueError(f"Invalid sdedit_strength: {sdedit_strength}")
     # else:
     #     all_strenths = [sdedit_strength]
-    all_strenths = [0.28]
+    all_strenths = [0.26]
 
     image_size = [480, 720]
 
@@ -172,6 +183,8 @@ def sampling_main(args, model_cls):
     frames_z = frames_z.permute(0, 2, 1, 3, 4).contiguous()
     assert frames_z.shape == (1, T, C, H // F, W // F), f"Encoded frames_z shape: {frames_z.shape} not correct"
 
+    prefix_frames_z = frames_z[:, :prefix_num_latent_frames].detach().clone()
+
     for strength in all_strenths:
         cur_sdedit_strength = strength
         cur_sdedit_strength = round(cur_sdedit_strength, 2)
@@ -186,6 +199,7 @@ def sampling_main(args, model_cls):
             shape=(T, C, H // F, W // F),
             frames_z=frames_z,
             sdedit_strength=cur_sdedit_strength,
+            prefix_clean_frames=prefix_frames_z,
         )
         # B, T, C, H, W -> B, C, T, H, W
         samples_z = samples_z.permute(0, 2, 1, 3, 4).contiguous()

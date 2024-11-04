@@ -5,16 +5,16 @@ import torch
 import torch.nn.functional as F
 
 from einops import rearrange, repeat
-from sgm.modules.diffusionmodules.openaimodel import Timestep
-from sgm.modules.diffusionmodules.util import linear, timestep_embedding
-from sgm.util import instantiate_from_config
-from torch import nn
-
 from sat.model.base_model import BaseModel, non_conflict
 from sat.model.mixins import BaseMixin
 from sat.mpu.layers import ColumnParallelLinear
 from sat.ops.layernorm import LayerNorm, RMSNorm
 from sat.transformer_defaults import HOOKS_DEFAULT, attention_fn_default
+from torch import nn
+
+from sgm.modules.diffusionmodules.openaimodel import Timestep
+from sgm.modules.diffusionmodules.util import linear, timestep_embedding
+from sgm.util import instantiate_from_config
 
 
 class ImagePatchEmbeddingMixin(BaseMixin):

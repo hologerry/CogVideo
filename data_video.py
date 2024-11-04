@@ -1,4 +1,5 @@
 import io
+import json
 import math
 import os
 import random
@@ -16,7 +17,6 @@ import torchvision.transforms as TT
 
 from decord import VideoReader
 from regex import F
-from sgm.webds import MetaDistributedWebDataset
 from torch.utils.data import Dataset
 from torchvision.io import _video_opt
 from torchvision.io.video import (
@@ -28,6 +28,8 @@ from torchvision.io.video import (
 from torchvision.transforms import InterpolationMode
 from torchvision.transforms.functional import center_crop, resize
 from tqdm import tqdm
+
+from sgm.webds import MetaDistributedWebDataset
 
 
 def read_video(
@@ -364,7 +366,7 @@ class VideoDataset(MetaDistributedWebDataset):
 
 
 class SFTDataset(Dataset):
-    def __init__(self, data_dir, video_size, fps, max_num_frames, skip_frms_num=3):
+    def __init__(self, data_dir, video_size, fps, max_num_frames, skip_frms_num=0, cam_str="", paths_post=""):
         """
         skip_frms_num: ignore the first and the last xx frames, avoiding transitions.
         """
@@ -377,8 +379,18 @@ class SFTDataset(Dataset):
         # self.num_frames_list = []
         # self.fps_list = []
         msg = f"SFTDataset: "
-        msg += f"data_dir={data_dir}, video_size={video_size}, fps={fps}, max_num_frames={max_num_frames}, skip_frms_num={skip_frms_num}"
+        msg += f"data_dir={data_dir}"
+        msg += f", video_size={video_size}"
+        msg += f", fps={fps}"
+        msg += f", max_num_frames={max_num_frames}"
+        msg += f", skip_frms_num={skip_frms_num}"
+        if cam_str != "" and paths_post != "":
+            msg += f", cam_str={cam_str}, paths_post={paths_post}"
+            use_json_paths = True
+        else:
+            use_json_paths = False
         print(msg)
+
         self.video_size = video_size
         self.fps = fps
         self.max_num_frames = max_num_frames
@@ -387,8 +399,14 @@ class SFTDataset(Dataset):
         decord.bridge.set_bridge("torch")
         self.videos_folder = os.path.join(data_dir, "videos")
         self.labels_folder = os.path.join(data_dir, "labels")
-        video_names = os.listdir(self.videos_folder)
-        video_names = [video_name for video_name in video_names if video_name.endswith(".mp4")]
+        if use_json_paths:
+            self.paths_json = os.path.join(data_dir, f"{cam_str}_train_paths{paths_post}.json")
+            with open(self.paths_json, "r") as f:
+                video_names = json.load(f)
+        else:
+            video_names = os.listdir(self.videos_folder)
+            video_names = [video_name for video_name in video_names if video_name.endswith(".mp4")]
+
         self.video_paths = [os.path.join(self.videos_folder, video_name) for video_name in video_names]
         self.label_paths = [
             os.path.join(self.labels_folder, video_name.replace(".mp4", ".txt")) for video_name in video_names

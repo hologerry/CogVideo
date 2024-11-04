@@ -1,7 +1,7 @@
 args:
   checkpoint_activations: True # using gradient checkpointing
   model_parallel_size: 1
-  experiment_name: lora_cogvidx5b_blackbluecloudredball204_all
+  experiment_name: lora_cogvidx5b_blackbluecloudredball204_cam4
   mode: finetune
   load: /data/Dynamics/cogvideox-sat/5b/transformer
   no_load_rng: True
@@ -27,7 +27,7 @@ data:
     fps: 8
     max_num_frames: 49
     skip_frms_num: 0
-    cam_str: all
+    cam_str: cam_04
     paths_post: "204"
 
 deepspeed:
