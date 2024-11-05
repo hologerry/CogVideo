@@ -330,3 +330,14 @@ def blend_frames(cur_frames, frame_to_blend, blend_frame_num):
 
 def check_inputs(frame_dir):
     assert os.path.exists(frame_dir), f"Frame directory {frame_dir} does not exist."
+
+
+def round_to_nearest_multiple(n, x):
+    # Calculate the remainder of n divided by x
+    remainder = n % x
+    # If remainder is less than half of x, round down
+    if remainder < x / 2:
+        return n - remainder
+    # Otherwise, round up
+    else:
+        return n + (x - remainder)
