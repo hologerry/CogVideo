@@ -94,11 +94,13 @@ def sampling_main(args, model_cls):
             load_prefix_frames = load_fake_prefix_frames
             previous_start_idx = start_idxs[index - 1]
             previous_poststr= cur_poststrs[index - 1]
+            # .replace("80000", "88000")
             prefix_output_dir = zero123_output_dir.replace("for_cogvideox", f"cogvideox_5b_all_pred_prefix_{previous_poststr}")
             prefix_basename = f"output_sfi{previous_start_idx:03d}_nf{num_frames}_strength{strength_str}"
             cur_prefix_frames_dir = os.path.join(args.output_dir, prefix_output_dir, prefix_basename)
             prefix_frame_step = 1
 
+        # .replace("80000", "88000")
         cogvx_output_dir = zero123_output_dir.replace("for_cogvideox", f"cogvideox_5b_all_pred_prefix_{cur_poststr}")
         cogvx_output_full_dir = os.path.join(args.output_dir, cogvx_output_dir)
         os.makedirs(cogvx_output_full_dir, exist_ok=True)
