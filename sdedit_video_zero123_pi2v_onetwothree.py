@@ -10,7 +10,7 @@ import torch
 
 from sat.model.base_model import get_model
 from sat.training.model_io import load_checkpoint
-from tqdm import trange, tqdm
+from tqdm import tqdm, trange
 
 from arguments import get_args
 from diffusion_video import SATVideoDiffusionEngine
@@ -22,9 +22,9 @@ from sample_helpers import (
     load_gt_prefix_frames,
     load_label,
     load_zero123_frames,
+    round_to_nearest_multiple,
     save_frames,
     save_video,
-    round_to_nearest_multiple,
 )
 
 
@@ -45,15 +45,26 @@ def sampling_main(args, model_cls):
     device = model.device
     torch_dtype = model.dtype
 
-
-    prefix_start_idxs = [args.sdedit_prefix_start_idx_one, args.sdedit_prefix_start_idx_two, args.sdedit_prefix_start_idx_three]
+    prefix_start_idxs = [
+        args.sdedit_prefix_start_idx_one,
+        args.sdedit_prefix_start_idx_two,
+        args.sdedit_prefix_start_idx_three,
+    ]
     prefix_num_frames = args.sdedit_prefix_num_frames
 
     labels_dir = args.sdedit_labels_dir
     frames_dir = args.sdedit_frames_dir
 
-    start_idxs = [args.sdedit_start_idx_one, args.sdedit_start_idx_two, args.sdedit_start_idx_three]
-    label_start_idxs = [args.sdedit_label_start_idx_one, args.sdedit_label_start_idx_two, args.sdedit_label_start_idx_three]
+    start_idxs = [
+        args.sdedit_start_idx_one,
+        args.sdedit_start_idx_two,
+        args.sdedit_start_idx_three,
+    ]
+    label_start_idxs = [
+        args.sdedit_label_start_idx_one,
+        args.sdedit_label_start_idx_two,
+        args.sdedit_label_start_idx_three,
+    ]
 
     num_frames = args.sdedit_num_frames
     frame_step = args.sdedit_frame_step
@@ -64,19 +75,23 @@ def sampling_main(args, model_cls):
     zero123step = args.sdedit_zero123_finetune_step
 
     # the frame 20 in scalarflow is the first scalarreal frame
-    frame_idx_to_label_idx_offset = 0  # 20
+    frame_idx_to_label_idx_offset = 0
     frame_batch_size = 2
-    label_step = 5
+    label_step = 10 if "Scalar" in frames_dir else 5
     prefix_num_latent_frames = prefix_num_frames // 3
+    max_frame_idx = 160 if "Scalar" in frames_dir else 480
+    max_label_idx = 110 if "Scalar" in frames_dir else 250
 
     sdedit_strength = args.sdedit_strength
     strength_str = str(sdedit_strength).replace(".", "d")
 
     zero123_output_dir = f"zero123_finetune_{zero123step}_cam{view_idx}to{tgt_view_idx}_for_cogvideox"
+    if "Scalar" in  frames_dir:
+        zero123_output_dir = f"zero123single_finetune_{zero123step}_cam{view_idx}to{tgt_view_idx}_for_cogvideox"
 
     cur_poststrs = ["one", "two", "three"]
 
-    for index in range(3):
+    for index in range(len(cur_poststrs)):
 
         cur_poststr = cur_poststrs[index]
         print(f"{'+'*40} Processing {cur_poststr} {'+'*40}")
@@ -93,9 +108,11 @@ def sampling_main(args, model_cls):
         else:
             load_prefix_frames = load_fake_prefix_frames
             previous_start_idx = start_idxs[index - 1]
-            previous_poststr= cur_poststrs[index - 1]
+            previous_poststr = cur_poststrs[index - 1]
             # .replace("80000", "88000")
-            prefix_output_dir = zero123_output_dir.replace("for_cogvideox", f"cogvideox_5b_all_pred_prefix_{previous_poststr}")
+            prefix_output_dir = zero123_output_dir.replace(
+                "for_cogvideox", f"cogvideox_5b_all_pred_prefix_{previous_poststr}"
+            )
             prefix_basename = f"output_sfi{previous_start_idx:03d}_nf{num_frames}_strength{strength_str}"
             cur_prefix_frames_dir = os.path.join(args.output_dir, prefix_output_dir, prefix_basename)
             prefix_frame_step = 1
@@ -124,17 +141,17 @@ def sampling_main(args, model_cls):
             zero_frames_dir,
             start_frame_idx=start_idx,
             num_frames=cur_num_frames,
-            max_frame_idx=480,  # 119,
+            max_frame_idx=max_frame_idx,
             ignore_fps=ignore_input_fps,
             frame_step=frame_step,
         )
         frames_tensor = prefix_frames_tensor + cur_frames_tensor
 
-        label_i = round_to_nearest_multiple(frame_idx_to_label_idx_offset +label_start_idx, label_step)
+        label_i = round_to_nearest_multiple(frame_idx_to_label_idx_offset + label_start_idx, label_step)
         prompt = load_label(
             labels_dir,
             start_frame_idx=label_i,
-            max_frame_idx=250,  # 110
+            max_frame_idx=max_label_idx,
             view_idx=tgt_view_idx,
             sequence_name=sequence_name,
         )

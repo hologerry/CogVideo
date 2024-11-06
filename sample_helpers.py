@@ -177,14 +177,18 @@ def load_gt_prefix_frames(
     ignore_fps=False,
 ):
     frames = []
+    if "RealCapture" in frame_dir:
+        view_folder = f"camera{view_idx:02d}_for_cogvideox"
+    elif "ScalarReal" in frame_dir:
+        view_folder = f"train{view_idx:02d}_for_cogvideox"
+
     for i in trange(
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
         frame_step,
         desc=f"Loading frames in view {view_idx}",
     ):
-        # frame_path = os.path.join(frame_dir, f"train{view_idx:02d}_for_cogvideox", f"{i:03d}.png")
-        frame_path = os.path.join(frame_dir, f"camera{view_idx:02d}_for_cogvideox", f"{i:03d}.png")
+        frame_path = os.path.join(frame_dir, view_folder, f"{i:03d}.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
         # frame[frame < 5] = 0
