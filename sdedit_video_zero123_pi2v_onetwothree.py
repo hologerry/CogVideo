@@ -86,8 +86,8 @@ def sampling_main(args, model_cls):
     strength_str = str(sdedit_strength).replace(".", "d")
 
     zero123_output_dir = f"zero123_finetune_{zero123step}_cam{view_idx}to{tgt_view_idx}_for_cogvideox"
-    if "Scalar" in  frames_dir:
-        zero123_output_dir = f"zero123single_finetune_{zero123step}_cam{view_idx}to{tgt_view_idx}_for_cogvideox"
+    # if "Scalar" in  frames_dir:
+    #     zero123_output_dir = f"zero123single_finetune_{zero123step}_cam{view_idx}to{tgt_view_idx}_for_cogvideox"
 
     cur_poststrs = ["one", "two", "three"]
 

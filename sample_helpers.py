@@ -149,14 +149,14 @@ def load_frames(
     denoise=True,
 ):
     frames = []
+    camera_name = f"train{view_idx:02d}" if "scalar" in frame_dir.lower() else f"camera{view_idx:02d}"
     for i in trange(
         start_frame_idx,
         start_frame_idx + num_frames * frame_step,
         frame_step,
         desc=f"Loading frames in view {view_idx}",
     ):
-        # frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_train{view_idx:02d}_last.png")
-        frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_camera{view_idx:02d}_0000.png")
+        frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_{camera_name}_0000.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
         # if denoise:
@@ -250,6 +250,7 @@ def load_dataset_zero123_fake_prefix_frames(
         frame = TF.to_tensor(frame)
         frames.append(frame)
     return frames
+
 
 def load_spherical_frames(
     frame_dir,
