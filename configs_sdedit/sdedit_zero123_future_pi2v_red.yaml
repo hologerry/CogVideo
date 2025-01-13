@@ -26,7 +26,7 @@ args:
   sdedit_prefix_num_frames: 9
   sdedit_start_idx: 120
   sdedit_label_start_idx: 237
-  sdedit_num_frames: 65
+  sdedit_num_frames: 73
   sdedit_frame_step: 2
   # sdedit_zero123_use_ckp2: False
   # sdedit_zero123_use_ckp2_psnr: False
@@ -37,7 +37,7 @@ args:
   # sdedit_view_end_idx: 10
   sdedit_ignore_input_fps: True
 
-  sampling_num_frames: 17  # Must be 13, 11 or 9
+  sampling_num_frames: 19  # Must be 13, 11 or 9
   sampling_fps: 8
   # fp16: True # For CogVideoX-2B
   bf16: True # For CogVideoX-5B

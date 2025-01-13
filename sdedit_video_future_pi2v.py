@@ -114,6 +114,7 @@ def sampling_main(args, model_cls):
         view_idx=tgt_view_idx,
         ignore_fps=ignore_input_fps,
         frame_step=1,
+        max_frame_idx=179,
     )
     frames_tensor = prefix_frames_tensor + cur_frames_tensor
 

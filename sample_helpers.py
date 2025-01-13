@@ -142,6 +142,7 @@ def load_frames(
     frame_dir,
     start_frame_idx=90,
     num_frames=49,
+    max_frame_idx=179,
     view_idx=0,
     frame_step=1,
     fps=8,
@@ -156,6 +157,8 @@ def load_frames(
         frame_step,
         desc=f"Loading frames in view {view_idx}",
     ):
+        if i > max_frame_idx:
+            i = max_frame_idx
         frame_path = os.path.join(frame_dir, f"render_frame{i:03d}_{camera_name}_0000.png")
         assert os.path.exists(frame_path), f"Frame {frame_path} does not exist."
         frame = cv2.imread(frame_path)
